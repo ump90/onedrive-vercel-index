@@ -23,19 +23,23 @@ const FileNavigation: FC = () => {
 
   // Get current file path and parent folder path
   const currentPath = router.asPath.split('?')[0]
-  const pathParts = currentPath.split('/')
-  const fileName = decodeURIComponent(pathParts[pathParts.length - 1])
-  const parentPath = pathParts.slice(0, -1).join('/') || '/'
+  const pathParts = currentPath.split('/').filter(Boolean)
 
-  // Get the actual API path (remove locale prefix if present)
-  const localeMatch = parentPath.match(/^\/[a-z]{2}(-[A-Z]{2})?(\/.*)?$/)
-  const apiPath = localeMatch ? (localeMatch[2] || '/') : parentPath
+  // Handle locale prefix (e.g., /zh-CN/path/to/file)
+  const locales = ['zh-CN', 'zh-TW', 'en', 'de-DE', 'es', 'hi', 'id', 'tr-TR']
+  const hasLocale = locales.includes(pathParts[0])
+
+  // Get the actual path without locale
+  const actualPathParts = hasLocale ? pathParts.slice(1) : pathParts
+  const fileName = decodeURIComponent(actualPathParts[actualPathParts.length - 1] || '')
+  const parentPathParts = actualPathParts.slice(0, -1)
+  const apiParentPath = '/' + parentPathParts.join('/')
 
   const hashedToken = getStoredToken(currentPath)
 
   // Fetch sibling files from parent folder
-  const { data } = useSWR(
-    `${apiPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`,
+  const { data, error } = useSWR(
+    mounted && fileName ? [`/api/?path=${apiParentPath}`, hashedToken] : null,
     fetcher,
     { revalidateOnFocus: false }
   )
@@ -45,7 +49,7 @@ const FileNavigation: FC = () => {
   const [nextFile, setNextFile] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!data || !('folder' in data)) return
+    if (!data || !('folder' in data) || !fileName) return
 
     const currentExtension = getExtension(fileName)
     const currentPreviewType = getPreviewType(currentExtension)
@@ -69,19 +73,28 @@ const FileNavigation: FC = () => {
       setPrevFile(null)
     }
 
-    if (currentIndex < siblingFiles.length - 1) {
+    if (currentIndex >= 0 && currentIndex < siblingFiles.length - 1) {
       setNextFile(siblingFiles[currentIndex + 1].name)
     } else {
       setNextFile(null)
     }
   }, [data, fileName])
 
+  // Build navigation path (preserve locale prefix)
+  const buildPath = useCallback(
+    (targetFileName: string) => {
+      const prefix = hasLocale ? `/${pathParts[0]}` : ''
+      const parentPath = '/' + parentPathParts.join('/')
+      return `${prefix}${parentPath}/${encodeURIComponent(targetFileName)}`
+    },
+    [hasLocale, pathParts, parentPathParts]
+  )
+
   const navigateTo = useCallback(
     (targetFileName: string) => {
-      const newPath = `${parentPath}/${encodeURIComponent(targetFileName)}`
-      router.push(newPath)
+      router.push(buildPath(targetFileName))
     },
-    [router, parentPath]
+    [router, buildPath]
   )
 
   // Keyboard navigation
@@ -103,6 +116,9 @@ const FileNavigation: FC = () => {
 
   // Don't render until mounted (hydration safety)
   if (!mounted) return null
+
+  // Don't render if loading or error
+  if (error || !data) return null
 
   // Don't render if no navigation available
   if (!prevFile && !nextFile) return null
