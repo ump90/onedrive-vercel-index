@@ -1,7 +1,7 @@
 import type { OdFolderChildren } from '../types'
 
 import Link from 'next/link'
-import { FC, useState, useMemo, useEffect } from 'react'
+import { FC, useState, useMemo } from 'react'
 import { useClipboard } from 'use-clipboard-copy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useTranslation } from 'next-i18next'
@@ -14,16 +14,11 @@ const naturalCompare = (a: string, b: string): number => {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
 }
 
-const SortIndicator: FC<{ column: SortBy; currentSort: SortBy; order: SortOrder; mounted: boolean }> = ({
+const SortIndicator: FC<{ column: SortBy; currentSort: SortBy; order: SortOrder }> = ({
   column,
   currentSort,
   order,
-  mounted,
 }) => {
-  // Don't render sort icons until client-side hydration is complete
-  if (!mounted) {
-    return null
-  }
   if (column !== currentSort) {
     return <FontAwesomeIcon icon="sort" className="ml-1 text-gray-400" size="xs" />
   }
@@ -80,12 +75,6 @@ const FolderListLayout = ({
 
   const { t } = useTranslation()
 
-  // Track if component is mounted (for hydration safety)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   // Sorting state
   const [sortBy, setSortBy] = useState<SortBy>('name')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
@@ -137,21 +126,21 @@ const FolderListLayout = ({
           onClick={() => handleSort('name')}
         >
           {t('Name')}
-          <SortIndicator column="name" currentSort={sortBy} order={sortOrder} mounted={mounted} />
+          <SortIndicator column="name" currentSort={sortBy} order={sortOrder} />
         </div>
         <div
           className="col-span-3 hidden cursor-pointer select-none text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 md:block"
           onClick={() => handleSort('lastModifiedDateTime')}
         >
           {t('Last Modified')}
-          <SortIndicator column="lastModifiedDateTime" currentSort={sortBy} order={sortOrder} mounted={mounted} />
+          <SortIndicator column="lastModifiedDateTime" currentSort={sortBy} order={sortOrder} />
         </div>
         <div
           className="hidden cursor-pointer select-none text-xs font-bold uppercase tracking-widest text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 md:block"
           onClick={() => handleSort('size')}
         >
           {t('Size')}
-          <SortIndicator column="size" currentSort={sortBy} order={sortOrder} mounted={mounted} />
+          <SortIndicator column="size" currentSort={sortBy} order={sortOrder} />
         </div>
         <div className="hidden text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-gray-300 md:block">
           {t('Actions')}

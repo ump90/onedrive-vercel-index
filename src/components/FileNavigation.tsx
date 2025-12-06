@@ -15,11 +15,6 @@ const naturalCompare = (a: string, b: string): number => {
 
 const FileNavigation: FC = () => {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Get current file path and parent folder path
   const currentPath = router.asPath.split('?')[0]
@@ -39,7 +34,7 @@ const FileNavigation: FC = () => {
 
   // Fetch sibling files from parent folder
   const { data, error } = useSWR(
-    mounted && fileName ? [`/api/?path=${apiParentPath}`, hashedToken] : null,
+    fileName ? [`/api/?path=${apiParentPath}`, hashedToken] : null,
     fetcher,
     { revalidateOnFocus: false }
   )
@@ -113,9 +108,6 @@ const FileNavigation: FC = () => {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [prevFile, nextFile, navigateTo])
-
-  // Don't render until mounted (hydration safety)
-  if (!mounted) return null
 
   // Don't render if loading or error
   if (error || !data) return null

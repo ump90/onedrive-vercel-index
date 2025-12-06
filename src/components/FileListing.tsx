@@ -39,10 +39,14 @@ import { PreviewContainer } from './previews/Containers'
 
 import FolderListLayout from './FolderListLayout'
 import FolderGridLayout from './FolderGridLayout'
-import FileNavigation from './FileNavigation'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
+  ssr: false,
+})
+
+// Disable SSR for FileNavigation to avoid hydration issues
+const FileNavigation = dynamic(() => import('./FileNavigation'), {
   ssr: false,
 })
 
