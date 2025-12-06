@@ -4,5 +4,10 @@ module.exports = {
   i18n,
   reactStrictMode: true,
   // Required by Next i18n with API routes, otherwise API routes 404 when fetching without trailing slash
-  trailingSlash: true
+  trailingSlash: true,
+  // Ensure next-i18next config is bundled for serverless
+  serverExternalPackages: [],
+  outputFileTracingIncludes: {
+    '/*': ['./next-i18next.config.js', './public/locales/**/*'],
+  },
 }
