@@ -1,6 +1,6 @@
 import type { OdFileObject, OdFolderChildren, OdFolderObject } from '../types'
 import { ParsedUrlQuery } from 'querystring'
-import { FC, MouseEventHandler, SetStateAction, useEffect, useRef, useState } from 'react'
+import React, { FC, MouseEventHandler, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import toast, { Toaster } from 'react-hot-toast'
 import emojiRegex from 'emoji-regex'
@@ -39,6 +39,7 @@ import { PreviewContainer } from './previews/Containers'
 
 import FolderListLayout from './FolderListLayout'
 import FolderGridLayout from './FolderGridLayout'
+import FileNavigation from './FileNavigation'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
@@ -393,43 +394,51 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
     const file = responses[0].file as OdFileObject
     const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
+    // Wrap preview with navigation buttons
+    const withNavigation = (previewComponent: React.ReactNode) => (
+      <>
+        <FileNavigation />
+        {previewComponent}
+      </>
+    )
+
     if (previewType) {
       switch (previewType) {
         case preview.image:
-          return <ImagePreview file={file} />
+          return withNavigation(<ImagePreview file={file} />)
 
         case preview.text:
-          return <TextPreview file={file} />
+          return withNavigation(<TextPreview file={file} />)
 
         case preview.code:
-          return <CodePreview file={file} />
+          return withNavigation(<CodePreview file={file} />)
 
         case preview.markdown:
-          return <MarkdownPreview file={file} path={path} />
+          return withNavigation(<MarkdownPreview file={file} path={path} />)
 
         case preview.video:
-          return <VideoPreview file={file} />
+          return withNavigation(<VideoPreview file={file} />)
 
         case preview.audio:
-          return <AudioPreview file={file} />
+          return withNavigation(<AudioPreview file={file} />)
 
         case preview.pdf:
-          return <PDFPreview file={file} />
+          return withNavigation(<PDFPreview file={file} />)
 
         case preview.office:
-          return <OfficePreview file={file} />
+          return withNavigation(<OfficePreview file={file} />)
 
         case preview.epub:
-          return <EPUBPreview file={file} />
+          return withNavigation(<EPUBPreview file={file} />)
 
         case preview.url:
-          return <URLPreview file={file} />
+          return withNavigation(<URLPreview file={file} />)
 
         default:
-          return <DefaultPreview file={file} />
+          return withNavigation(<DefaultPreview file={file} />)
       }
     } else {
-      return <DefaultPreview file={file} />
+      return withNavigation(<DefaultPreview file={file} />)
     }
   }
 
