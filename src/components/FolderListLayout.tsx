@@ -9,6 +9,11 @@ import { useTranslation } from 'next-i18next'
 type SortBy = 'name' | 'lastModifiedDateTime' | 'size'
 type SortOrder = 'asc' | 'desc'
 
+// Natural sort comparison for file names (handles numbers correctly: 1, 2, 10 instead of 1, 10, 2)
+const naturalCompare = (a: string, b: string): number => {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+}
+
 const SortIndicator: FC<{ column: SortBy; currentSort: SortBy; order: SortOrder }> = ({ column, currentSort, order }) => {
   if (column !== currentSort) {
     return <FontAwesomeIcon icon="sort" className="ml-1 text-gray-400" size="xs" />
@@ -92,7 +97,7 @@ const FolderListLayout = ({
       let comparison = 0
       switch (sortBy) {
         case 'name':
-          comparison = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          comparison = naturalCompare(a.name, b.name)
           break
         case 'lastModifiedDateTime':
           comparison = new Date(a.lastModifiedDateTime).getTime() - new Date(b.lastModifiedDateTime).getTime()
