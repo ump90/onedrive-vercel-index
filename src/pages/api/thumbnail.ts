@@ -7,6 +7,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { checkAuthRoute, encodePath, getAccessToken } from '.'
 import apiConfig from '../../../config/api.config'
+import { getProxiedUrl } from '../../utils/cfProxy'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const accessToken = await getAccessToken()
@@ -64,7 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const thumbnailUrl = data.value && data.value.length > 0 ? (data.value[0] as OdThumbnail)[size].url : null
     if (thumbnailUrl) {
-      res.redirect(thumbnailUrl)
+      const finalUrl = getProxiedUrl(thumbnailUrl)
+      res.redirect(finalUrl)
     } else {
       res.status(400).json({ error: "The item doesn't have a valid thumbnail." })
     }

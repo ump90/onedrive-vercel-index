@@ -6,6 +6,7 @@ import Cors from 'cors'
 
 import { driveApi, cacheControlHeader } from '../../../config/api.config'
 import { encodePath, getAccessToken, checkAuthRoute } from '.'
+import { getProxiedUrl, isCfProxyEnabled } from '../../utils/cfProxy'
 
 // CORS middleware for raw links: https://nextjs.org/docs/api-routes/api-middlewares
 export function runCorsMiddleware(req: NextApiRequest, res: NextApiResponse) {
@@ -70,9 +71,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if ('@microsoft.graph.downloadUrl' in data) {
+      const downloadUrl = data['@microsoft.graph.downloadUrl'] as string
       // Only proxy raw file content response for files up to 4MB
       if (proxy && 'size' in data && data['size'] < 4194304) {
-        const { headers, data: stream } = await axios.get(data['@microsoft.graph.downloadUrl'] as string, {
+        const { headers, data: stream } = await axios.get(downloadUrl, {
           responseType: 'stream',
         })
         headers['Cache-Control'] = cacheControlHeader
@@ -80,7 +82,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.writeHead(200, headers as AxiosResponseHeaders)
         stream.pipe(res)
       } else {
-        res.redirect(data['@microsoft.graph.downloadUrl'])
+        // Use Cloudflare proxy if enabled, otherwise redirect directly
+        const finalUrl = getProxiedUrl(downloadUrl)
+        res.redirect(finalUrl)
       }
     } else {
       res.status(404).json({ error: 'No download url found.' })

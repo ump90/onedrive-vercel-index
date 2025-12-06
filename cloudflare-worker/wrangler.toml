@@ -1,0 +1,14 @@
+name = "onedrive-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables should be set via Cloudflare Dashboard for security
+# Do NOT put secrets in this file
+
+# [vars]
+# ALLOWED_ORIGINS = "https://your-site.vercel.app"
+# RATE_LIMIT_PER_MINUTE = "60"
+# MAX_FILE_SIZE = "524288000"
+
+# For production, use secrets:
+# wrangler secret put PROXY_SECRET

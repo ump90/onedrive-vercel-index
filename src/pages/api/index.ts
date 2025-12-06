@@ -9,6 +9,7 @@ import { revealObfuscatedToken } from '../../utils/oAuthHandler'
 import { compareHashedToken } from '../../utils/protectedRouteHandler'
 import { getOdAuthTokens, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
 import { runCorsMiddleware } from './raw'
+import { getProxiedUrl } from '../../utils/cfProxy'
 
 const basePath = pathPosix.resolve('/', siteConfig.baseDirectory)
 const clientSecret = revealObfuscatedToken(apiConfig.obfuscatedClientSecret)
@@ -241,7 +242,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if ('@microsoft.graph.downloadUrl' in data) {
-      res.redirect(data['@microsoft.graph.downloadUrl'])
+      const downloadUrl = data['@microsoft.graph.downloadUrl'] as string
+      const finalUrl = getProxiedUrl(downloadUrl)
+      res.redirect(finalUrl)
     } else {
       res.status(404).json({ error: 'No download url found.' })
     }
