@@ -5,11 +5,9 @@
  * - ALLOWED_ORIGINS: Comma-separated list of allowed origins (e.g., "https://your-site.vercel.app,https://your-domain.com")
  * - PROXY_SECRET: Secret key for request validation (must match NEXT_PUBLIC_CF_PROXY_SECRET in Vercel)
  * - RATE_LIMIT_PER_MINUTE: Max requests per IP per minute (default: 60)
- * - MAX_FILE_SIZE: Max file size to proxy in bytes (default: 500MB = 524288000)
  */
 
 const DEFAULT_RATE_LIMIT = 60
-const DEFAULT_MAX_FILE_SIZE = 524288000 // 500MB
 
 // In-memory rate limiting (resets when worker restarts)
 const rateLimitMap = new Map()
@@ -98,17 +96,21 @@ function getCorsHeaders(request, allowedOrigins) {
   const origin = request.headers.get('Origin')
   const origins = allowedOrigins.split(',').map(o => o.trim())
 
-  // Check if origin is in allowed list
-  let allowOrigin = origins[0] // Default to first origin
-  if (origin && origins.some(o => origin.toLowerCase().startsWith(o.toLowerCase()))) {
-    allowOrigin = origin
+  // Check if origin is in allowed list, or use wildcard
+  let allowOrigin = '*'
+  if (allowedOrigins !== '*' && origin) {
+    if (origins.some(o => origin.toLowerCase().startsWith(o.toLowerCase()))) {
+      allowOrigin = origin
+    } else {
+      allowOrigin = origins[0]
+    }
   }
 
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Proxy-Secret, Range',
-    'Access-Control-Expose-Headers': 'Content-Length, Content-Range, Content-Type',
+    'Access-Control-Expose-Headers': 'Content-Length, Content-Range, Content-Type, Content-Disposition',
     'Access-Control-Max-Age': '86400',
   }
 }
@@ -131,7 +133,6 @@ async function handleRequest(request, env) {
   const allowedOrigins = env.ALLOWED_ORIGINS || '*'
   const proxySecret = env.PROXY_SECRET || ''
   const rateLimit = parseInt(env.RATE_LIMIT_PER_MINUTE) || DEFAULT_RATE_LIMIT
-  const maxFileSize = parseInt(env.MAX_FILE_SIZE) || DEFAULT_MAX_FILE_SIZE
 
   // Get client IP
   const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown'
@@ -234,18 +235,6 @@ async function handleRequest(request, env) {
       headers,
       redirect: 'follow',
     })
-
-    // Check file size (from Content-Length header)
-    const contentLength = parseInt(response.headers.get('Content-Length') || '0')
-    if (contentLength > maxFileSize) {
-      return new Response(JSON.stringify({ error: 'File too large' }), {
-        status: 413,
-        headers: {
-          'Content-Type': 'application/json',
-          ...getCorsHeaders(request, allowedOrigins),
-        },
-      })
-    }
 
     // Build response headers
     const responseHeaders = new Headers(getCorsHeaders(request, allowedOrigins))

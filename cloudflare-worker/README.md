@@ -32,7 +32,6 @@ wrangler deploy
 | `ALLOWED_ORIGINS` | 允许的来源域名（逗号分隔） | `https://your-site.vercel.app,https://your-domain.com` |
 | `PROXY_SECRET` | 代理密钥（防止滥用） | 随机字符串，如 `your-secret-key-here` |
 | `RATE_LIMIT_PER_MINUTE` | 每 IP 每分钟请求限制 | `60` |
-| `MAX_FILE_SIZE` | 最大代理文件大小（字节） | `524288000`（500MB） |
 
 #### 设置 Secret（推荐）
 
@@ -56,7 +55,6 @@ wrangler secret put PROXY_SECRET
 2. **Secret 验证**：请求需要携带正确的密钥
 3. **速率限制**：防止单 IP 过多请求
 4. **域名白名单**：只代理 OneDrive/SharePoint 的 URL
-5. **文件大小限制**：防止代理过大文件
 
 ## 使用方式
 
