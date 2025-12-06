@@ -10,4 +10,17 @@ module.exports = {
   outputFileTracingIncludes: {
     '/*': ['./next-i18next.config.js', './public/locales/**/*'],
   },
+  // Exclude API routes from i18n locale routing
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // Rewrite /en/api/* to /api/* (remove locale prefix from API routes)
+        {
+          source: '/:locale/api/:path*',
+          destination: '/api/:path*',
+          locale: false,
+        },
+      ],
+    }
+  },
 }
