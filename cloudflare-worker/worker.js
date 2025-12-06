@@ -3,7 +3,6 @@
  *
  * Environment Variables (set in Cloudflare Dashboard):
  * - ALLOWED_ORIGINS: Comma-separated list of allowed origins (e.g., "https://your-site.vercel.app,https://your-domain.com")
- * - PROXY_SECRET: Secret key for request validation (must match NEXT_PUBLIC_CF_PROXY_SECRET in Vercel)
  * - RATE_LIMIT_PER_MINUTE: Max requests per IP per minute (default: 60)
  */
 
@@ -80,16 +79,6 @@ function validateOrigin(request, allowedOrigins) {
 }
 
 /**
- * Validate proxy secret
- */
-function validateSecret(request, secret) {
-  if (!secret) return true // Skip if no secret configured
-
-  const providedSecret = request.headers.get('X-Proxy-Secret')
-  return providedSecret === secret
-}
-
-/**
  * Generate CORS headers
  */
 function getCorsHeaders(request, allowedOrigins) {
@@ -131,7 +120,6 @@ function handleOptions(request, env) {
  */
 async function handleRequest(request, env) {
   const allowedOrigins = env.ALLOWED_ORIGINS || '*'
-  const proxySecret = env.PROXY_SECRET || ''
   const rateLimit = parseInt(env.RATE_LIMIT_PER_MINUTE) || DEFAULT_RATE_LIMIT
 
   // Get client IP
@@ -152,17 +140,6 @@ async function handleRequest(request, env) {
   // Validate origin
   if (allowedOrigins !== '*' && !validateOrigin(request, allowedOrigins)) {
     return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
-      status: 403,
-      headers: {
-        'Content-Type': 'application/json',
-        ...getCorsHeaders(request, allowedOrigins),
-      },
-    })
-  }
-
-  // Validate secret
-  if (!validateSecret(request, proxySecret)) {
-    return new Response(JSON.stringify({ error: 'Invalid proxy secret' }), {
       status: 403,
       headers: {
         'Content-Type': 'application/json',
@@ -205,6 +182,7 @@ async function handleRequest(request, env) {
     '.1drv.com',
     'onedrive.live.com',
     '.graph.microsoft.com',
+    '.svc.ms', // Thumbnail service (e.g., southeastasia1-mediap.svc.ms)
   ]
 
   const isAllowedHost = allowedHosts.some(host =>

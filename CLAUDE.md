@@ -68,7 +68,6 @@ Optional:
 
 ### Cloudflare Worker Proxy (Optional)
 - `NEXT_PUBLIC_CF_PROXY_URL` - Cloudflare Worker URL for accelerating file downloads
-- `NEXT_PUBLIC_CF_PROXY_SECRET` - Secret key for proxy authentication (must match Worker's PROXY_SECRET)
 
 ## Key Dependencies
 - Next.js 13 with Pages Router (not App Router)
