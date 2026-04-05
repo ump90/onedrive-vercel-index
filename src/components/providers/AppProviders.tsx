@@ -2,6 +2,8 @@
 
 import type { PropsWithChildren } from 'react'
 
+import '../../lib/fontawesome'
+
 import { Analytics } from '@vercel/analytics/react'
 import NextNProgress from 'nextjs-progressbar'
 import { CookiesProvider } from 'react-cookie'
