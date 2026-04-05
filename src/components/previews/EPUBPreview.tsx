@@ -3,14 +3,14 @@ import type { OdFileObject } from '../../types'
 import { FC, useEffect, useRef, useState } from 'react'
 import { ReactReader } from 'react-reader'
 import { useRouter } from 'next/router'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 
 import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer } from './Containers'
 import { getStoredToken } from '../../utils/protectedRouteHandler'
 
-const EPUBPreview: FC<{ file: OdFileObject }> = ({ file }) => {
+const EPUBPreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
   const { asPath } = useRouter()
   const hashedToken = getStoredToken(asPath)
 
@@ -21,7 +21,7 @@ const EPUBPreview: FC<{ file: OdFileObject }> = ({ file }) => {
     setEpubContainerWidth(epubContainer.current ? epubContainer.current.offsetWidth : 400)
   }, [])
 
-  const [location, setLocation] = useState<string>()
+  const [location, setLocation] = useState<string | number | null>(null)
   const onLocationChange = (cfiStr: string) => setLocation(cfiStr)
 
   const { t } = useTranslation()

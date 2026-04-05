@@ -1,7 +1,7 @@
 import { NextRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import JSZip from 'jszip'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from 'next-i18next/pages'
 
 import { fetcher } from '../utils/fetchWithSWR'
 import { getStoredToken } from '../utils/protectedRouteHandler'
@@ -196,7 +196,7 @@ export async function* traverseFolder(path: string): AsyncGenerator<TraverseItem
   }
 
   // Pool containing Promises of folder requests
-  let pool = [genTask(0, path)]
+  const pool = [genTask(0, path)]
 
   // Map as item buffer for folders with pagination
   const buf: { [k: string]: TraverseItem[] } = {}

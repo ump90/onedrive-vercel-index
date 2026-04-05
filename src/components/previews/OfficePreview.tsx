@@ -9,7 +9,7 @@ import { DownloadBtnContainer } from './Containers'
 import { getBaseUrl } from '../../utils/getBaseUrl'
 import { getStoredToken } from '../../utils/protectedRouteHandler'
 
-const OfficePreview: FC<{ file: OdFileObject }> = ({ file }) => {
+const OfficePreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
   const { asPath } = useRouter()
   const hashedToken = getStoredToken(asPath)
 
