@@ -15,7 +15,6 @@ import { useProtectedSWRInfinite } from '../utils/fetchWithSWR'
 import { getExtension, getRawExtension, getFileIcon } from '../utils/getFileIcon'
 import { segmentsToPath } from '../utils/path'
 import { getStoredToken } from '../utils/protectedRouteHandler'
-import { debugLog } from '../utils/debugLog'
 import {
   DownloadingToast,
   downloadMultipleFiles,
@@ -151,17 +150,6 @@ const FileListing: FC<{ pathSegments?: string[]; locale?: AppLocale }> = ({ path
   const { t } = useTranslation()
 
   const { data, error, size, setSize } = useProtectedSWRInfinite(path)
-
-  useEffect(() => {
-    debugLog('file-listing-state', {
-      path,
-      locale,
-      layout: layout.name,
-      hasData: Boolean(data),
-      errorStatus: error?.status ?? null,
-      pageCount: data?.length ?? 0,
-    })
-  }, [data, error?.status, layout.name, locale, path])
 
   useEffect(() => {
     if (error?.status === 403) {

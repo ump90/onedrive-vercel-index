@@ -13,7 +13,6 @@ import siteConfig from '../../config/site.config'
 import SearchModal from './SearchModal'
 import SwitchLang from './SwitchLang'
 import useDeviceOS from '../utils/useDeviceOS'
-import { debugLog } from '../utils/debugLog'
 import { prefixPathWithLocale } from '../i18n/routing'
 
 const Navbar = ({ locale }: { locale?: string }) => {
@@ -41,23 +40,6 @@ const Navbar = ({ locale }: { locale?: string }) => {
     }
     setTokenPresent(storedToken())
   }, [])
-
-  useEffect(() => {
-    debugLog('navbar-mounted', {
-      locale,
-      os,
-      tokenPresent,
-      path: window.location.pathname,
-    })
-  }, [locale, os, tokenPresent])
-
-  useEffect(() => {
-    debugLog('navbar-search-toggle', {
-      searchOpen,
-      locale,
-      os,
-    })
-  }, [locale, os, searchOpen])
 
   const { t } = useTranslation()
 

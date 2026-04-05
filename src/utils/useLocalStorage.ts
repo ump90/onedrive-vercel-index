@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import { debugLog } from './debugLog'
 
 type SetValue<T> = Dispatch<SetStateAction<T>>
 
@@ -51,24 +50,13 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
   }
 
   useEffect(() => {
-    const nextValue = readValue()
-    debugLog('use-local-storage-sync', {
-      key,
-      initialValue,
-      syncedValue: nextValue,
-    })
-    setStoredValue(nextValue)
+    setStoredValue(readValue())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const nextValue = readValue()
-      debugLog('use-local-storage-event', {
-        key,
-        nextValue,
-      })
-      setStoredValue(nextValue)
+      setStoredValue(readValue())
     }
 
     // this only works for other documents, not the current one
@@ -83,13 +71,6 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, SetValue<T>] {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useEffect(() => {
-    debugLog('use-local-storage-render', {
-      key,
-      storedValue,
-    })
-  }, [key, storedValue])
 
   return [storedValue, setValue]
 }

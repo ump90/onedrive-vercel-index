@@ -15,7 +15,6 @@ import { LoadingIcon } from './Loading'
 import { getFileIcon } from '../utils/getFileIcon'
 import { fetcher } from '../utils/fetchWithSWR'
 import siteConfig from '../../config/site.config'
-import { debugLog } from '../utils/debugLog'
 import { prefixPathWithLocale } from '../i18n/routing'
 
 /**
@@ -189,17 +188,6 @@ export default function SearchModal({
   const { query, setQuery, results } = useDriveItemSearch()
 
   const { t } = useTranslation()
-
-  useEffect(() => {
-    debugLog('search-modal-state', {
-      searchOpen,
-      query,
-      loading: results.loading,
-      hasError: Boolean(results.error),
-      resultCount: results.result?.length ?? null,
-      locale,
-    })
-  }, [locale, query, results.error, results.loading, results.result, searchOpen])
 
   const closeSearchBox = () => {
     setSearchOpen(false)
