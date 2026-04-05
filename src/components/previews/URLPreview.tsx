@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { useTranslation } from '../../i18n'
 
 import FourOhFour from '../FourOhFour'
@@ -14,11 +13,10 @@ const parseDotUrl = (content: string): string | undefined => {
     ?.split('=')[1]
 }
 
-const TextPreview = ({ file: _file }) => {
-  const { asPath } = useRouter()
+const TextPreview = ({ file: _file, path }: { file: unknown; path: string }) => {
   const { t } = useTranslation()
 
-  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${asPath}`, asPath)
+  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${path}`, path)
   if (error) {
     return (
       <PreviewContainer>

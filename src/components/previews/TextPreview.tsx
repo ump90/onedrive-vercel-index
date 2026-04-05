@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { useTranslation } from '../../i18n'
 
 import FourOhFour from '../FourOhFour'
@@ -7,11 +6,10 @@ import DownloadButtonGroup from '../DownloadBtnGtoup'
 import useFileContent from '../../utils/fetchOnMount'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
 
-const TextPreview = ({ file: _file }) => {
-  const { asPath } = useRouter()
+const TextPreview = ({ file: _file, path }: { file: unknown; path: string }) => {
   const { t } = useTranslation()
 
-  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${asPath}`, asPath)
+  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${path}`, path)
   if (error) {
     return (
       <PreviewContainer>
@@ -27,7 +25,7 @@ const TextPreview = ({ file: _file }) => {
           <Loading loadingText={t('Loading file content...')} />
         </PreviewContainer>
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup path={path} />
         </DownloadBtnContainer>
       </>
     )
@@ -40,7 +38,7 @@ const TextPreview = ({ file: _file }) => {
           <FourOhFour errorMsg={t('File is empty.')} />
         </PreviewContainer>
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup path={path} />
         </DownloadBtnContainer>
       </>
     )
@@ -52,7 +50,7 @@ const TextPreview = ({ file: _file }) => {
         <pre className="overflow-x-scroll p-0 text-sm md:p-3">{content}</pre>
       </PreviewContainer>
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup path={path} />
       </DownloadBtnContainer>
     </div>
   )

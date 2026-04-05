@@ -1,18 +1,17 @@
 import type { OdFileObject, OdFolderChildren, OdFolderObject } from '../types'
-import { ParsedUrlQuery } from 'querystring'
 import { FC, MouseEventHandler, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import toast, { Toaster } from 'react-hot-toast'
 import emojiRegex from 'emoji-regex'
 
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
 import { useTranslation } from '../i18n'
 
 import useLocalStorage from '../utils/useLocalStorage'
 import { getPreviewType, preview } from '../utils/getPreviewType'
 import { useProtectedSWRInfinite } from '../utils/fetchWithSWR'
 import { getExtension, getRawExtension, getFileIcon } from '../utils/getFileIcon'
+import { segmentsToPath } from '../utils/path'
 import { getStoredToken } from '../utils/protectedRouteHandler'
 import {
   DownloadingToast,
@@ -47,22 +46,6 @@ const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
 const VideoPreview = dynamic(() => import('./previews/VideoPreview'), {
   ssr: false,
 })
-
-/**
- * Convert url query into path string
- *
- * @param query Url query property
- * @returns Path string
- */
-const queryToPath = (query?: ParsedUrlQuery) => {
-  if (query) {
-    const { path } = query
-    if (!path) return '/'
-    if (typeof path === 'string') return `/${encodeURIComponent(path)}`
-    return `/${path.map(p => encodeURIComponent(p)).join('/')}`
-  }
-  return '/'
-}
 
 // Render the icon of a folder child (may be a file or a folder), use emoji if the name of the child contains emoji
 const renderEmoji = (name: string) => {
@@ -149,7 +132,7 @@ export const Downloading: FC<{ title: string; style: string }> = ({ title, style
   )
 }
 
-const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
+const FileListing: FC<{ pathSegments?: string[] }> = ({ pathSegments }) => {
   const [selected, setSelected] = useState<{ [key: string]: boolean }>({})
   const [totalSelected, setTotalSelected] = useState<0 | 1 | 2>(0)
   const [totalGenerating, setTotalGenerating] = useState<boolean>(false)
@@ -157,20 +140,23 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
     [key: string]: boolean
   }>({})
 
-  const router = useRouter()
-  const hashedToken = getStoredToken(router.asPath)
+  const path = segmentsToPath(pathSegments)
+  const hashedToken = getStoredToken(path)
   const [layout, _] = useLocalStorage('preferredLayout', layouts[0])
 
   const { t } = useTranslation()
 
-  const path = queryToPath(query)
-
   const { data, error, size, setSize } = useProtectedSWRInfinite(path)
+
+  useEffect(() => {
+    if (error?.status === 403) {
+      window.location.assign('/onedrive-vercel-index-oauth/step-1')
+    }
+  }, [error])
 
   if (error) {
     // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page
     if (error.status === 403) {
-      router.push('/onedrive-vercel-index-oauth/step-1')
       return <div />
     }
 
@@ -256,8 +242,8 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
       } else if (files.length > 1) {
         setTotalGenerating(true)
 
-        const toastId = toast.loading(<DownloadingToast router={router} />)
-        downloadMultipleFiles({ toastId, router, files, folder })
+        const toastId = toast.loading(<DownloadingToast />)
+        downloadMultipleFiles({ toastId, files, folder })
           .then(() => {
             setTotalGenerating(false)
             toast.success(t('Finished downloading selected files.'), {
@@ -277,7 +263,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
         .filter(c => selected[c.id])
         .map(
           c =>
-            `${baseUrl}/api/raw/?path=${path}/${encodeURIComponent(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''}`
+            `${baseUrl}/api/raw/?path=${path}/${encodeURIComponent(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''}`,
         )
         .join('\n')
     }
@@ -292,7 +278,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
                 path: p,
                 status: error.status,
                 message: error.message,
-              })
+              }),
             )
             continue
           }
@@ -307,11 +293,10 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
       })()
 
       setFolderGenerating({ ...folderGenerating, [id]: true })
-      const toastId = toast.loading(<DownloadingToast router={router} />)
+      const toastId = toast.loading(<DownloadingToast />)
 
       downloadTreelikeMultipleFiles({
         toastId,
-        router,
         files,
         basePath: path,
         folder: name,
@@ -361,7 +346,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
             </div>
             <button
               className={`flex w-full items-center justify-center space-x-2 p-3 disabled:cursor-not-allowed ${
-                isLoadingMore || isReachingEnd ? 'opacity-60' : 'hover:bg-gray-100 dark:hover:bg-gray-850'
+                isLoadingMore || isReachingEnd ? 'opacity-60' : 'dark:hover:bg-gray-850 hover:bg-gray-100'
               }`}
               onClick={() => setSize(size + 1)}
               disabled={isLoadingMore || isReachingEnd}
@@ -399,40 +384,40 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
     if (previewType) {
       switch (previewType) {
         case preview.image:
-          return <ImagePreview file={file} />
+          return <ImagePreview file={file} path={path} />
 
         case preview.text:
-          return <TextPreview file={file} />
+          return <TextPreview file={file} path={path} />
 
         case preview.code:
-          return <CodePreview file={file} />
+          return <CodePreview file={file} path={path} />
 
         case preview.markdown:
           return <MarkdownPreview file={file} path={path} />
 
         case preview.video:
-          return <VideoPreview file={file} />
+          return <VideoPreview file={file} path={path} />
 
         case preview.audio:
-          return <AudioPreview file={file} />
+          return <AudioPreview file={file} path={path} />
 
         case preview.pdf:
-          return <PDFPreview file={file} />
+          return <PDFPreview file={file} path={path} />
 
         case preview.office:
-          return <OfficePreview file={file} />
+          return <OfficePreview file={file} path={path} />
 
         case preview.epub:
-          return <EPUBPreview file={file} />
+          return <EPUBPreview file={file} path={path} />
 
         case preview.url:
-          return <URLPreview file={file} />
+          return <URLPreview file={file} path={path} />
 
         default:
-          return <DefaultPreview file={file} />
+          return <DefaultPreview file={file} path={path} />
       }
     } else {
-      return <DefaultPreview file={file} />
+      return <DefaultPreview file={file} path={path} />
     }
   }
 

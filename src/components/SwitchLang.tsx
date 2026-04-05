@@ -2,14 +2,11 @@ import { Fragment } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Menu, Transition } from '@headlessui/react'
 
-import { useRouter } from 'next/router'
 import { useCookies } from 'react-cookie'
 
 import { localeCookieName, locales, localeText } from '../i18n'
 
 const SwitchLang = () => {
-  const router = useRouter()
-
   const [, setCookie] = useCookies([localeCookieName])
 
   return (
@@ -36,7 +33,9 @@ const SwitchLang = () => {
                   type="button"
                   onClick={() => {
                     setCookie(localeCookieName, locale, { path: '/' })
-                    window.location.assign(router.asPath)
+                    window.location.assign(
+                      `${window.location.pathname}${window.location.search}${window.location.hash}`,
+                    )
                   }}
                   className="block w-full"
                 >

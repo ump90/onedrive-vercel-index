@@ -102,7 +102,7 @@ const MarkdownPreview: FC<{
         </PreviewContainer>
         {standalone && (
           <DownloadBtnContainer>
-            <DownloadButtonGroup />
+            <DownloadButtonGroup path={path} />
           </DownloadBtnContainer>
         )}
       </>
@@ -130,7 +130,7 @@ const MarkdownPreview: FC<{
       </PreviewContainer>
       {standalone && (
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup path={path} />
         </DownloadBtnContainer>
       )}
     </div>

@@ -1,7 +1,6 @@
 import type { OdFileObject } from '../../types'
 
 import { FC, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 import { useTranslation } from '../../i18n'
 
 import axios from 'axios'
@@ -74,23 +73,22 @@ const VideoPlayer: FC<{
   return <Plyr id="plyr" source={plyrSource as PlyrSource} options={plyrOptions} />
 }
 
-const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
-  const { asPath } = useRouter()
-  const hashedToken = getStoredToken(asPath)
+const VideoPreview: FC<{ file: OdFileObject; path: string }> = ({ file, path }) => {
+  const hashedToken = getStoredToken(path)
   const clipboard = useClipboard()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const { t } = useTranslation()
 
   // OneDrive generates thumbnails for its video files, we pick the thumbnail with the highest resolution
-  const thumbnail = `/api/thumbnail/?path=${asPath}&size=large${hashedToken ? `&odpt=${hashedToken}` : ''}`
+  const thumbnail = `/api/thumbnail/?path=${path}&size=large${hashedToken ? `&odpt=${hashedToken}` : ''}`
 
   // We assume subtitle files are beside the video with the same name, only webvtt '.vtt' files are supported
-  const vtt = `${asPath.substring(0, asPath.lastIndexOf('.'))}.vtt`
+  const vtt = `${path.substring(0, path.lastIndexOf('.'))}.vtt`
   const subtitle = `/api/raw/?path=${vtt}${hashedToken ? `&odpt=${hashedToken}` : ''}`
 
   // We also format the raw video file for the in-browser player as well as all other players
-  const videoUrl = `/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`
+  const videoUrl = `/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`
 
   const isFlv = getExtension(file.name) === 'flv'
   const {
@@ -105,7 +103,7 @@ const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
 
   return (
     <>
-      <CustomEmbedLinkMenu path={asPath} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <CustomEmbedLinkMenu path={path} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       <PreviewContainer>
         {error ? (
           <FourOhFour errorMsg={error.message} />
@@ -135,7 +133,7 @@ const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
           />
           <DownloadButton
             onClickCallback={() => {
-              clipboard.copy(`${getBaseUrl()}/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`)
+              clipboard.copy(`${getBaseUrl()}/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`)
               toast.success(t('Copied direct link to clipboard.'))
             }}
             btnColor="pink"

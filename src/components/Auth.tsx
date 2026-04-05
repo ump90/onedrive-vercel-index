@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
 import { useTranslation } from '../i18n'
 
@@ -11,7 +10,6 @@ import useLocalStorage from '../utils/useLocalStorage'
 const Auth: FC<{ redirect: string }> = ({ redirect }) => {
   const authTokenPath = matchProtectedRoute(redirect)
 
-  const router = useRouter()
   const [token, setToken] = useState('')
   const [_, setPersistedToken] = useLocalStorage(authTokenPath, '')
 
@@ -31,7 +29,7 @@ const Auth: FC<{ redirect: string }> = ({ redirect }) => {
 
       <div className="flex items-center space-x-2">
         <input
-          className="flex-1 rounded border border-gray-600/10 p-2 font-mono focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
+          className="flex-1 rounded border border-gray-600/10 p-2 font-mono focus:ring focus:ring-blue-300 focus:outline-none dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
           autoFocus
           type="password"
           placeholder="************"
@@ -42,15 +40,15 @@ const Auth: FC<{ redirect: string }> = ({ redirect }) => {
           onKeyPress={e => {
             if (e.key === 'Enter' || e.key === 'NumpadEnter') {
               setPersistedToken(token)
-              router.reload()
+              window.location.reload()
             }
           }}
         />
         <button
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-400"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:ring focus:ring-blue-400 focus:outline-none"
           onClick={() => {
             setPersistedToken(token)
-            router.reload()
+            window.location.reload()
           }}
         >
           <FontAwesomeIcon icon="arrow-right" />

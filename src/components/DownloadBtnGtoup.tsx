@@ -6,7 +6,6 @@ import { useClipboard } from 'use-clipboard-copy'
 import { useTranslation } from '../i18n'
 
 import Image from 'next/image'
-import { useRouter } from 'next/router'
 
 import { getBaseUrl } from '../utils/getBaseUrl'
 import { getStoredToken } from '../utils/protectedRouteHandler'
@@ -49,8 +48,8 @@ export const DownloadButton = ({
 }) => {
   return (
     <button
-      className={`flex items-center space-x-2 rounded-lg border bg-white py-2 px-4 text-sm font-medium text-gray-900 hover:bg-gray-100/10 focus:z-10 focus:ring-2 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 ${btnStyleMap(
-        btnColor
+      className={`flex items-center space-x-2 rounded-lg border bg-white px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100/10 focus:z-10 focus:ring-2 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 ${btnStyleMap(
+        btnColor,
       )}`}
       title={btnTitle}
       onClick={onClickCallback}
@@ -62,9 +61,8 @@ export const DownloadButton = ({
   )
 }
 
-const DownloadButtonGroup = () => {
-  const { asPath } = useRouter()
-  const hashedToken = getStoredToken(asPath)
+const DownloadButtonGroup = ({ path }: { path: string }) => {
+  const hashedToken = getStoredToken(path)
 
   const clipboard = useClipboard()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -73,10 +71,10 @@ const DownloadButtonGroup = () => {
 
   return (
     <>
-      <CustomEmbedLinkMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} path={asPath} />
+      <CustomEmbedLinkMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} path={path} />
       <div className="flex flex-wrap justify-center gap-2">
         <DownloadButton
-          onClickCallback={() => window.open(`/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`)}
+          onClickCallback={() => window.open(`/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`)}
           btnColor="blue"
           btnText={t('Download')}
           btnIcon="file-download"
@@ -84,7 +82,7 @@ const DownloadButtonGroup = () => {
         />
         <DownloadButton
           onClickCallback={() => {
-            clipboard.copy(`${getBaseUrl()}/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`)
+            clipboard.copy(`${getBaseUrl()}/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`)
             toast.success(t('Copied direct link to clipboard.'))
           }}
           btnColor="pink"

@@ -1,6 +1,5 @@
 import type { OdFileObject } from '../../types'
 import { FC, useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/router'
 
 import Preview from 'preview-office-docs'
 
@@ -9,16 +8,13 @@ import { DownloadBtnContainer } from './Containers'
 import { getBaseUrl } from '../../utils/getBaseUrl'
 import { getStoredToken } from '../../utils/protectedRouteHandler'
 
-const OfficePreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
-  const { asPath } = useRouter()
-  const hashedToken = getStoredToken(asPath)
+const OfficePreview: FC<{ file: OdFileObject; path: string }> = ({ file: _file, path }) => {
+  const hashedToken = getStoredToken(path)
 
   const docContainer = useRef<HTMLDivElement>(null)
   const [docContainerWidth, setDocContainerWidth] = useState(600)
 
-  const docUrl = encodeURIComponent(
-    `${getBaseUrl()}/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`
-  )
+  const docUrl = encodeURIComponent(`${getBaseUrl()}/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`)
 
   useEffect(() => {
     setDocContainerWidth(docContainer.current ? docContainer.current.offsetWidth : 600)
@@ -30,7 +26,7 @@ const OfficePreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
         <Preview url={docUrl} width={docContainerWidth.toString()} height="600" />
       </div>
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup path={path} />
       </DownloadBtnContainer>
     </div>
   )

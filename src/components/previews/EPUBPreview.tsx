@@ -2,7 +2,6 @@ import type { OdFileObject } from '../../types'
 
 import { FC, useEffect, useRef, useState } from 'react'
 import { ReactReader } from 'react-reader'
-import { useRouter } from 'next/router'
 import { useTranslation } from '../../i18n'
 
 import Loading from '../Loading'
@@ -10,9 +9,8 @@ import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer } from './Containers'
 import { getStoredToken } from '../../utils/protectedRouteHandler'
 
-const EPUBPreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
-  const { asPath } = useRouter()
-  const hashedToken = getStoredToken(asPath)
+const EPUBPreview: FC<{ file: OdFileObject; path: string }> = ({ file: _file, path }) => {
+  const hashedToken = getStoredToken(path)
 
   const [epubContainerWidth, setEpubContainerWidth] = useState(400)
   const epubContainer = useRef<HTMLDivElement>(null)
@@ -44,7 +42,7 @@ const EPUBPreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
   return (
     <div>
       <div
-        className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white dark:bg-gray-900 md:p-3"
+        className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white md:p-3 dark:bg-gray-900"
         style={{ maxHeight: '90vh' }}
       >
         <div className="no-scrollbar w-full flex-1 overflow-scroll" ref={epubContainer} style={{ minHeight: '70vh' }}>
@@ -56,7 +54,7 @@ const EPUBPreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
             }}
           >
             <ReactReader
-              url={`/api/raw/?path=${asPath}${hashedToken ? '&odpt=' + hashedToken : ''}`}
+              url={`/api/raw/?path=${path}${hashedToken ? '&odpt=' + hashedToken : ''}`}
               getRendition={rendition => fixEpub(rendition)}
               loadingView={<Loading loadingText={t('Loading EPUB ...')} />}
               location={location}
@@ -68,7 +66,7 @@ const EPUBPreview: FC<{ file: OdFileObject }> = ({ file: _file }) => {
         </div>
       </div>
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup path={path} />
       </DownloadBtnContainer>
     </div>
   )

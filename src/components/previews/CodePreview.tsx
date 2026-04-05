@@ -1,7 +1,6 @@
 import { FC } from 'react'
 import { useTranslation } from '../../i18n'
 import useSystemTheme from 'react-use-system-theme'
-import { useRouter } from 'next/router'
 
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrowNightEighties, tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
@@ -13,9 +12,8 @@ import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
 
-const CodePreview: FC<{ file: any }> = ({ file }) => {
-  const { asPath } = useRouter()
-  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${asPath}`, asPath)
+const CodePreview: FC<{ file: any; path: string }> = ({ file, path }) => {
+  const { response: content, error, validating } = useFileContent(`/api/raw/?path=${path}`, path)
 
   const theme = useSystemTheme('dark')
   const { t } = useTranslation()
@@ -34,7 +32,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
           <Loading loadingText={t('Loading file content...')} />
         </PreviewContainer>
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup path={path} />
         </DownloadBtnContainer>
       </>
     )
@@ -51,7 +49,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
         </SyntaxHighlighter>
       </PreviewContainer>
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup path={path} />
       </DownloadBtnContainer>
     </>
   )

@@ -1,4 +1,3 @@
-import { NextRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import JSZip from 'jszip'
 import { useTranslation } from '../i18n'
@@ -9,10 +8,9 @@ import { getStoredToken } from '../utils/protectedRouteHandler'
 /**
  * A loading toast component with file download progress support
  * @param props
- * @param props.router Next router instance, used for reloading the page
  * @param props.progress Current downloading and compression progress (returned by jszip metadata)
  */
-export function DownloadingToast({ router, progress }: { router: NextRouter; progress?: string }) {
+export function DownloadingToast({ progress }: { progress?: string }) {
   const { t } = useTranslation()
 
   return (
@@ -27,8 +25,8 @@ export function DownloadingToast({ router, progress }: { router: NextRouter; pro
         </div>
       </div>
       <button
-        className="rounded bg-red-500 p-2 text-white hover:bg-red-400 focus:outline-none focus:ring focus:ring-red-300"
-        onClick={() => router.reload()}
+        className="rounded bg-red-500 p-2 text-white hover:bg-red-400 focus:ring focus:ring-red-300 focus:outline-none"
+        onClick={() => window.location.reload()}
       >
         {t('Cancel')}
       </button>
@@ -60,12 +58,10 @@ export function downloadBlob({ blob, name }: { blob: Blob; name: string }) {
  */
 export async function downloadMultipleFiles({
   toastId,
-  router,
   files,
   folder,
 }: {
   toastId: string
-  router: NextRouter
   files: { name: string; url: string }[]
   folder?: string
 }): Promise<void> {
@@ -78,13 +74,13 @@ export async function downloadMultipleFiles({
       name,
       fetch(url).then(r => {
         return r.blob()
-      })
+      }),
     )
   })
 
   // Create zip file and download it
   const b = await zip.generateAsync({ type: 'blob' }, metadata => {
-    toast.loading(<DownloadingToast router={router} progress={metadata.percent.toFixed(0)} />, {
+    toast.loading(<DownloadingToast progress={metadata.percent.toFixed(0)} />, {
       id: toastId,
     })
   })
@@ -104,13 +100,11 @@ export async function downloadMultipleFiles({
  */
 export async function downloadTreelikeMultipleFiles({
   toastId,
-  router,
   files,
   basePath,
   folder,
 }: {
   toastId: string
-  router: NextRouter
   files: AsyncGenerator<{
     name: string
     url?: string
@@ -132,7 +126,7 @@ export async function downloadTreelikeMultipleFiles({
       .reverse()
       .findIndex(
         ({ path: parent }) =>
-          path.substring(0, parent.length) === parent && path.substring(parent.length + 1).indexOf('/') === -1
+          path.substring(0, parent.length) === parent && path.substring(parent.length + 1).indexOf('/') === -1,
       )
     if (i === -1) {
       throw new Error('File array does not satisfy requirement')
@@ -145,14 +139,14 @@ export async function downloadTreelikeMultipleFiles({
     } else {
       dir.file(
         name,
-        fetch(url!).then(r => r.blob())
+        fetch(url!).then(r => r.blob()),
       )
     }
   }
 
   // Create zip file and download it
   const b = await zip.generateAsync({ type: 'blob' }, metadata => {
-    toast.loading(<DownloadingToast router={router} progress={metadata.percent.toFixed(0)} />, {
+    toast.loading(<DownloadingToast progress={metadata.percent.toFixed(0)} />, {
       id: toastId,
     })
   })

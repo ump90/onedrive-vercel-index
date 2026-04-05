@@ -6,8 +6,12 @@ import '../lib/fontawesome'
 
 import type { Metadata } from 'next'
 import type { PropsWithChildren } from 'react'
+import { cookies, headers } from 'next/headers'
 
 import siteConfig from '../../config/site.config'
+import AppProviders from '../components/providers/AppProviders'
+import { getPreferredLocale } from '../i18n/config'
+import I18nProvider from '../i18n/provider'
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -17,9 +21,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default async function RootLayout({ children }: PropsWithChildren) {
+  const [cookieStore, headersList] = await Promise.all([cookies(), headers()])
+  const locale = getPreferredLocale(cookieStore.toString(), headersList.get('accept-language'))
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -27,7 +34,11 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <link key={link} rel="stylesheet" href={link} />
         ))}
       </head>
-      <body>{children}</body>
+      <body>
+        <AppProviders>
+          <I18nProvider locale={locale}>{children}</I18nProvider>
+        </AppProviders>
+      </body>
     </html>
   )
 }

@@ -4,7 +4,6 @@ import { FC, useEffect, useRef, useState } from 'react'
 import ReactAudioPlayer from 'react-audio-player'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useTranslation } from '../../i18n'
-import { useRouter } from 'next/router'
 
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
@@ -19,17 +18,16 @@ enum PlayerState {
   Paused,
 }
 
-const AudioPreview: FC<{ file: OdFileObject }> = ({ file }) => {
+const AudioPreview: FC<{ file: OdFileObject; path: string }> = ({ file, path }) => {
   const { t } = useTranslation()
-  const { asPath } = useRouter()
-  const hashedToken = getStoredToken(asPath)
+  const hashedToken = getStoredToken(path)
 
   const rapRef = useRef<ReactAudioPlayer>(null)
   const [playerStatus, setPlayerStatus] = useState(PlayerState.Loading)
   const [playerVolume, setPlayerVolume] = useState(1)
 
   // Render audio thumbnail, and also check for broken thumbnails
-  const thumbnail = `/api/thumbnail/?path=${asPath}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
+  const thumbnail = `/api/thumbnail/?path=${path}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
 
   useEffect(() => {
@@ -54,7 +52,7 @@ const AudioPreview: FC<{ file: OdFileObject }> = ({ file }) => {
     <>
       <PreviewContainer>
         <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
-          <div className="relative flex aspect-square w-full items-center justify-center rounded bg-gray-100 transition-all duration-75 dark:bg-gray-700 md:w-48">
+          <div className="relative flex aspect-square w-full items-center justify-center rounded bg-gray-100 transition-all duration-75 md:w-48 dark:bg-gray-700">
             <div
               className={`absolute z-20 flex h-full w-full items-center justify-center transition-all duration-300 ${
                 playerStatus === PlayerState.Loading
@@ -96,7 +94,7 @@ const AudioPreview: FC<{ file: OdFileObject }> = ({ file }) => {
 
             <ReactAudioPlayer
               className="h-11 w-full"
-              src={`/api/raw/?path=${asPath}${hashedToken ? `&odpt=${hashedToken}` : ''}`}
+              src={`/api/raw/?path=${path}${hashedToken ? `&odpt=${hashedToken}` : ''}`}
               ref={rapRef}
               controls
               preload="auto"
@@ -107,7 +105,7 @@ const AudioPreview: FC<{ file: OdFileObject }> = ({ file }) => {
       </PreviewContainer>
 
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup path={path} />
       </DownloadBtnContainer>
     </>
   )
