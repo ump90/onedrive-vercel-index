@@ -241,18 +241,11 @@ export default function SearchModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[200] overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="search-box-title"
-      onClick={closeSearchBox}
-    >
-      <div aria-hidden="true" className="fixed inset-0 bg-black/10 dark:bg-black/30" />
-      <div className="min-h-screen px-4 py-12 text-center">
+    <div className="fixed inset-0 z-[200]" role="dialog" aria-modal="true" aria-labelledby="search-box-title">
+      <div aria-hidden="true" className="absolute inset-0 bg-black/10 dark:bg-black/30" onClick={closeSearchBox} />
+      <div className="relative flex min-h-full items-start justify-center p-4 pt-16 md:p-8 md:pt-20">
         <div
-          className="relative inline-block w-full max-w-3xl overflow-hidden rounded border border-gray-400/30 bg-white text-left shadow-xl dark:bg-gray-900 dark:text-white"
-          onClick={event => event.stopPropagation()}
+          className="flex max-h-[min(80vh,48rem)] w-full max-w-3xl flex-col overflow-hidden rounded border border-gray-400/30 bg-white text-left shadow-xl dark:bg-gray-900 dark:text-white"
         >
           <div className="flex items-center space-x-4 border-b border-gray-400/30 bg-gray-50 p-4 dark:bg-gray-800">
             <FontAwesomeIcon icon="search" className="h-4 w-4" />
@@ -276,7 +269,7 @@ export default function SearchModal({
               ESC
             </button>
           </div>
-          <div className="max-h-[80vh] overflow-x-hidden overflow-y-scroll bg-white dark:bg-gray-900">
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900">
             {results.loading && (
               <div className="px-4 py-12 text-center text-sm font-medium">
                 <LoadingIcon className="svg-inline--fa mr-2 inline-block h-4 w-4 animate-spin" />
