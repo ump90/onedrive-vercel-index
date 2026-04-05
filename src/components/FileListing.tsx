@@ -7,6 +7,7 @@ import emojiRegex from 'emoji-regex'
 import dynamic from 'next/dynamic'
 import { useTranslation } from '../i18n'
 
+import { type AppLocale } from '../i18n/config'
 import useLocalStorage from '../utils/useLocalStorage'
 import { getPreviewType, preview } from '../utils/getPreviewType'
 import { useProtectedSWRInfinite } from '../utils/fetchWithSWR'
@@ -132,7 +133,7 @@ export const Downloading: FC<{ title: string; style: string }> = ({ title, style
   )
 }
 
-const FileListing: FC<{ pathSegments?: string[] }> = ({ pathSegments }) => {
+const FileListing: FC<{ pathSegments?: string[]; locale?: AppLocale }> = ({ pathSegments, locale }) => {
   const [selected, setSelected] = useState<{ [key: string]: boolean }>({})
   const [totalSelected, setTotalSelected] = useState<0 | 1 | 2>(0)
   const [totalGenerating, setTotalGenerating] = useState<boolean>(false)
@@ -313,6 +314,7 @@ const FileListing: FC<{ pathSegments?: string[] }> = ({ pathSegments }) => {
 
     // Folder layout component props
     const folderProps = {
+      locale,
       toast,
       path,
       folderChildren,

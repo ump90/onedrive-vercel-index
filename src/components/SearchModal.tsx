@@ -16,6 +16,7 @@ import { LoadingIcon } from './Loading'
 import { getFileIcon } from '../utils/getFileIcon'
 import { fetcher } from '../utils/fetchWithSWR'
 import siteConfig from '../../config/site.config'
+import { prefixPathWithLocale } from '../i18n/routing'
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the
@@ -83,25 +84,26 @@ function SearchResultItemTemplate({
   driveItemPath,
   itemDescription,
   disabled,
+  locale,
 }: {
   driveItem: OdSearchResult[number]
   driveItemPath: string
   itemDescription: string
   disabled: boolean
+  locale?: string
 }) {
   return (
     <Link
-      href={driveItemPath}
-      passHref
-      className={`flex items-center space-x-4 border-b border-gray-400/30 px-4 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-850 ${
+      href={prefixPathWithLocale(driveItemPath, locale)}
+      className={`dark:hover:bg-gray-850 flex items-center space-x-4 border-b border-gray-400/30 px-4 py-1.5 hover:bg-gray-50 ${
         disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer'
       }`}
     >
       <FontAwesomeIcon icon={driveItem.file ? getFileIcon(driveItem.name) : ['far', 'folder']} />
       <div>
-        <div className="text-sm font-medium leading-8">{driveItem.name}</div>
+        <div className="text-sm leading-8 font-medium">{driveItem.name}</div>
         <div
-          className={`overflow-hidden truncate font-mono text-xs opacity-60 ${
+          className={`truncate overflow-hidden font-mono text-xs opacity-60 ${
             itemDescription === 'Loading ...' && 'animate-pulse'
           }`}
         >
@@ -112,10 +114,10 @@ function SearchResultItemTemplate({
   )
 }
 
-function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number] }) {
+function SearchResultItemLoadRemote({ result, locale }: { result: OdSearchResult[number]; locale?: string }) {
   const { data, error }: SWRResponse<OdDriveItem, { status: number; message: any }> = useSWR(
     [`/api/item/?id=${result.id}`],
-    fetcher
+    fetcher,
   )
 
   const { t } = useTranslation()
@@ -127,6 +129,7 @@ function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number]
         driveItemPath={''}
         itemDescription={typeof error.message?.error === 'string' ? error.message.error : JSON.stringify(error.message)}
         disabled={true}
+        locale={locale}
       />
     )
   }
@@ -137,6 +140,7 @@ function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number]
         driveItemPath={''}
         itemDescription={t('Loading ...')}
         disabled={true}
+        locale={locale}
       />
     )
   }
@@ -148,14 +152,15 @@ function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number]
       driveItemPath={driveItemPath}
       itemDescription={decodeURIComponent(driveItemPath)}
       disabled={false}
+      locale={locale}
     />
   )
 }
 
-function SearchResultItem({ result }: { result: OdSearchResult[number] }) {
+function SearchResultItem({ result, locale }: { result: OdSearchResult[number]; locale?: string }) {
   if (result.path === '') {
     // path is empty, which means we need to fetch the parentReference to get the path
-    return <SearchResultItemLoadRemote result={result} />
+    return <SearchResultItemLoadRemote result={result} locale={locale} />
   } else {
     // path is not an empty string in the search result, such that we can directly render the component as is
     const driveItemPath = decodeURIComponent(result.path)
@@ -165,6 +170,7 @@ function SearchResultItem({ result }: { result: OdSearchResult[number] }) {
         driveItemPath={result.path}
         itemDescription={driveItemPath}
         disabled={false}
+        locale={locale}
       />
     )
   }
@@ -173,9 +179,11 @@ function SearchResultItem({ result }: { result: OdSearchResult[number] }) {
 export default function SearchModal({
   searchOpen,
   setSearchOpen,
+  locale,
 }: {
   searchOpen: boolean
   setSearchOpen: Dispatch<SetStateAction<boolean>>
+  locale?: string
 }) {
   const { query, setQuery, results } = useDriveItemSearch()
 
@@ -247,7 +255,7 @@ export default function SearchModal({
                     {results.result.length === 0 ? (
                       <div className="px-4 py-12 text-center text-sm font-medium">{t('Nothing here.')}</div>
                     ) : (
-                      results.result.map(result => <SearchResultItem key={result.id} result={result} />)
+                      results.result.map(result => <SearchResultItem key={result.id} result={result} locale={locale} />)
                     )}
                   </>
                 )}

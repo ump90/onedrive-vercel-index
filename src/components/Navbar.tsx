@@ -13,8 +13,9 @@ import siteConfig from '../../config/site.config'
 import SearchModal from './SearchModal'
 import SwitchLang from './SwitchLang'
 import useDeviceOS from '../utils/useDeviceOS'
+import { prefixPathWithLocale } from '../i18n/routing'
 
-const Navbar = () => {
+const Navbar = ({ locale }: { locale?: string }) => {
   const os = useDeviceOS()
 
   const [tokenPresent, setTokenPresent] = useState(false)
@@ -59,10 +60,13 @@ const Navbar = () => {
     <div className="bg-opacity-80 sticky top-0 z-[100] border-b border-gray-900/10 bg-white backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900">
       <Toaster />
 
-      <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen} />
+      <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen} locale={locale} />
 
       <div className="mx-auto flex w-full items-center justify-between space-x-4 px-4 py-1">
-        <Link href="/" passHref className="flex items-center space-x-2 py-2 hover:opacity-80 md:p-2 dark:text-white">
+        <Link
+          href={prefixPathWithLocale('/', locale)}
+          className="flex items-center space-x-2 py-2 hover:opacity-80 md:p-2 dark:text-white"
+        >
           <Image src={siteConfig.icon} alt="icon" width="25" height="25" priority />
           <span className="hidden font-bold sm:block">{siteConfig.title}</span>
         </Link>
