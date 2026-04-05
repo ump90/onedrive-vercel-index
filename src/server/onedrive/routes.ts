@@ -309,9 +309,24 @@ function sanitiseQuery(query: string): string {
   return encodeURIComponent(sanitisedQuery)
 }
 
+function mapAbsolutePath(path: string): string {
+  const absolutePath = path.split(siteConfig.baseDirectory === '/' ? 'root:' : siteConfig.baseDirectory)
+  return absolutePath.length > 1
+    ? absolutePath[1]
+        .split('/')
+        .map(segment => encodeURIComponent(decodeURIComponent(segment)))
+        .join('/')
+    : ''
+}
+
+function buildSearchResultPath(itemName: string, parentPath: string) {
+  const absoluteParentPath = mapAbsolutePath(parentPath)
+  return `${absoluteParentPath}/${encodeURIComponent(itemName)}`
+}
+
 async function resolveDriveItemPath(accessToken: string, item: { id: string; name: string; parentReference?: { path?: string } }) {
   if (typeof item.parentReference?.path === 'string') {
-    return item.parentReference.path
+    return buildSearchResultPath(item.name, item.parentReference.path)
   }
 
   const itemApi = `${apiConfig.driveApi}/items/${item.id}`
@@ -322,7 +337,7 @@ async function resolveDriveItemPath(accessToken: string, item: { id: string; nam
     },
   })
 
-  return data.parentReference?.path ?? ''
+  return typeof data.parentReference?.path === 'string' ? buildSearchResultPath(item.name, data.parentReference.path) : ''
 }
 
 export async function handleSearchRequest(request: NextRequest) {
