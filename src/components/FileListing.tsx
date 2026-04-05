@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import emojiRegex from 'emoji-regex'
 
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from '../i18n'
 
 import { type AppLocale } from '../i18n/config'
@@ -134,6 +135,7 @@ export const Downloading: FC<{ title: string; style: string }> = ({ title, style
 }
 
 const FileListing: FC<{ pathSegments?: string[]; locale?: AppLocale }> = ({ pathSegments, locale }) => {
+  const router = useRouter()
   const [selected, setSelected] = useState<{ [key: string]: boolean }>({})
   const [totalSelected, setTotalSelected] = useState<0 | 1 | 2>(0)
   const [totalGenerating, setTotalGenerating] = useState<boolean>(false)
@@ -151,9 +153,9 @@ const FileListing: FC<{ pathSegments?: string[]; locale?: AppLocale }> = ({ path
 
   useEffect(() => {
     if (error?.status === 403) {
-      window.location.assign('/onedrive-vercel-index-oauth/step-1')
+      router.push('/onedrive-vercel-index-oauth/step-1')
     }
-  }, [error])
+  }, [error, router])
 
   if (error) {
     // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page
