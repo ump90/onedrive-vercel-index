@@ -225,7 +225,10 @@ export default function SearchModal({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div aria-hidden="true" className="fixed inset-0 bg-white/80 dark:bg-gray-800/80" />
+            <div
+              aria-hidden="true"
+              className="fixed inset-0 bg-gray-950/8 backdrop-blur-[1px] dark:bg-black/30"
+            />
           </Transition.Child>
 
           <Transition.Child
