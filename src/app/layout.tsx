@@ -4,6 +4,7 @@ import '../styles/globals.css'
 import '../styles/markdown-github.css'
 
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import type { PropsWithChildren } from 'react'
 import { cookies, headers } from 'next/headers'
 
@@ -32,6 +33,48 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         {siteConfig.googleFontLinks.map((link: string) => (
           <link key={link} rel="stylesheet" href={link} />
         ))}
+        <Script id="ovi-debug-bootstrap" strategy="beforeInteractive">
+          {`
+            (function () {
+              var prefix = '[ovi-debug-bootstrap]';
+              var log = function (label, payload) {
+                if (payload === undefined) {
+                  console.info(prefix, label);
+                  return;
+                }
+                console.info(prefix, label, payload);
+              };
+              var error = function (label, payload) {
+                if (payload === undefined) {
+                  console.error(prefix, label);
+                  return;
+                }
+                console.error(prefix, label, payload);
+              };
+              window.__OVI_DEBUG__ = { log: log, error: error };
+              log('boot', {
+                href: window.location.href,
+                language: window.navigator.language,
+                userAgent: window.navigator.userAgent
+              });
+              window.addEventListener('error', function (event) {
+                error('window-error', {
+                  message: event.message,
+                  source: event.filename,
+                  line: event.lineno,
+                  column: event.colno
+                });
+              });
+              window.addEventListener('unhandledrejection', function (event) {
+                var reason = event.reason;
+                error('unhandled-rejection', {
+                  message: reason && reason.message ? reason.message : String(reason),
+                  stack: reason && reason.stack ? reason.stack : undefined
+                });
+              });
+            })();
+          `}
+        </Script>
       </head>
       <body>
         <AppProviders>
