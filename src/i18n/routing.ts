@@ -11,10 +11,11 @@ export function getRouteLocale(routeSegments?: string[]): AppLocale | undefined 
 
 export function resolveRouteContext(routeSegments?: string[]) {
   const locale = getRouteLocale(routeSegments)
+  const rawDriveSegments = locale ? (routeSegments?.slice(1) ?? []) : (routeSegments ?? [])
 
   return {
     locale,
-    driveSegments: locale ? (routeSegments?.slice(1) ?? []) : (routeSegments ?? []),
+    driveSegments: rawDriveSegments.map(segment => decodeURIComponent(segment)),
   }
 }
 
