@@ -215,7 +215,7 @@ export default function SearchModal({
         onClose={closeSearchBox}
         initialFocus={searchInputRef}
       >
-        <div className="min-h-screen px-4 text-center">
+        <div className="min-h-screen px-4 text-center" onClick={closeSearchBox}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-100"
@@ -237,7 +237,10 @@ export default function SearchModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="my-12 inline-block w-full max-w-3xl transform overflow-hidden rounded border border-gray-400/30 text-left shadow-xl transition-all">
+            <div
+              className="my-12 inline-block w-full max-w-3xl transform overflow-hidden rounded border border-gray-400/30 text-left shadow-xl transition-all"
+              onClick={event => event.stopPropagation()}
+            >
               <div className="flex items-center space-x-4 border-b border-gray-400/30 bg-gray-50 p-4 dark:bg-gray-800 dark:text-white">
                 <FontAwesomeIcon icon="search" className="h-4 w-4" />
                 <Dialog.Title as="h3" className="sr-only">
