@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useTranslation, Trans } from 'next-i18next/pages'
 import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
+import nextI18NextConfig from '../../utils/nextI18NextConfig'
 
 import siteConfig from '../../../config/site.config'
 import apiConfig from '../../../config/api.config'
@@ -150,7 +151,7 @@ export default function OAuthStep1() {
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
+      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
     },
   }
 }
