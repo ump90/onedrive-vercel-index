@@ -1,5 +1,4 @@
 import axios from 'axios'
-import useSWR, { SWRResponse } from 'swr'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import AwesomeDebouncePromise from 'awesome-debounce-promise'
 import { useAsync } from 'react-async-hook'
@@ -9,11 +8,10 @@ import { useTranslation } from '../i18n'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import type { OdDriveItem, OdSearchResult } from '../types'
+import type { OdSearchResult } from '../types'
 import { LoadingIcon } from './Loading'
 
 import { getFileIcon } from '../utils/getFileIcon'
-import { fetcher } from '../utils/fetchWithSWR'
 import siteConfig from '../../config/site.config'
 import { prefixPathWithLocale } from '../i18n/routing'
 
@@ -113,66 +111,31 @@ function SearchResultItemTemplate({
   )
 }
 
-function SearchResultItemLoadRemote({ result, locale }: { result: OdSearchResult[number]; locale?: string }) {
-  const { data, error }: SWRResponse<OdDriveItem, { status: number; message: any }> = useSWR(
-    [`/api/item/?id=${result.id}`],
-    fetcher,
-  )
-
+function SearchResultItem({ result, locale }: { result: OdSearchResult[number]; locale?: string }) {
   const { t } = useTranslation()
 
-  if (error) {
+  if (result.path === '') {
     return (
       <SearchResultItemTemplate
         driveItem={result}
         driveItemPath={''}
-        itemDescription={typeof error.message?.error === 'string' ? error.message.error : JSON.stringify(error.message)}
-        disabled={true}
-        locale={locale}
-      />
-    )
-  }
-  if (!data) {
-    return (
-      <SearchResultItemTemplate
-        driveItem={result}
-        driveItemPath={''}
-        itemDescription={t('Loading ...')}
+        itemDescription={t('Path unavailable')}
         disabled={true}
         locale={locale}
       />
     )
   }
 
-  const driveItemPath = `${mapAbsolutePath(data.parentReference.path)}/${encodeURIComponent(data.name)}`
+  const driveItemPath = decodeURIComponent(result.path)
   return (
     <SearchResultItemTemplate
       driveItem={result}
-      driveItemPath={driveItemPath}
-      itemDescription={decodeURIComponent(driveItemPath)}
+      driveItemPath={result.path}
+      itemDescription={driveItemPath}
       disabled={false}
       locale={locale}
     />
   )
-}
-
-function SearchResultItem({ result, locale }: { result: OdSearchResult[number]; locale?: string }) {
-  if (result.path === '') {
-    // path is empty, which means we need to fetch the parentReference to get the path
-    return <SearchResultItemLoadRemote result={result} locale={locale} />
-  } else {
-    // path is not an empty string in the search result, such that we can directly render the component as is
-    const driveItemPath = decodeURIComponent(result.path)
-    return (
-      <SearchResultItemTemplate
-        driveItem={result}
-        driveItemPath={result.path}
-        itemDescription={driveItemPath}
-        disabled={false}
-        locale={locale}
-      />
-    )
-  }
 }
 
 export default function SearchModal({

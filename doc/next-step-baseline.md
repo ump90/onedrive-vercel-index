@@ -85,6 +85,10 @@
 - 页面迁移后的结构稳定，无重复入口长期并存
 - 核心流程回归通过
 
+当前落地说明：
+
+- 见 [data-fetch-boundary.md](D:/Workspace/onedrive-vercel-index/doc/data-fetch-boundary.md)
+
 ## 4. 总体验收标准
 
 满足以下条件可视为本轮阶段完成：

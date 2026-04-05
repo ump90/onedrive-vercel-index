@@ -309,6 +309,22 @@ function sanitiseQuery(query: string): string {
   return encodeURIComponent(sanitisedQuery)
 }
 
+async function resolveDriveItemPath(accessToken: string, item: { id: string; name: string; parentReference?: { path?: string } }) {
+  if (typeof item.parentReference?.path === 'string') {
+    return item.parentReference.path
+  }
+
+  const itemApi = `${apiConfig.driveApi}/items/${item.id}`
+  const { data } = await axios.get(itemApi, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    params: {
+      select: 'parentReference',
+    },
+  })
+
+  return data.parentReference?.path ?? ''
+}
+
 export async function handleSearchRequest(request: NextRequest) {
   const headers = createHeaders({
     'Cache-Control': apiConfig.cacheControlHeader,
@@ -329,7 +345,23 @@ export async function handleSearchRequest(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(data.value, { headers })
+    const enrichedResults = await Promise.all(
+      data.value.map(async (item: { id: string; name: string; file?: unknown; folder?: unknown; parentReference?: { path?: string } }) => {
+        try {
+          return {
+            ...item,
+            path: await resolveDriveItemPath(accessToken, item),
+          }
+        } catch {
+          return {
+            ...item,
+            path: '',
+          }
+        }
+      }),
+    )
+
+    return NextResponse.json(enrichedResults, { headers })
   } catch (error: any) {
     return jsonError(getAxiosErrorStatus(error), getAxiosErrorPayload(error), headers)
   }
