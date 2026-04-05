@@ -8,7 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { Fragment, useEffect, useState } from 'react'
-import { useTranslation } from 'next-i18next/pages'
+import { useTranslation } from '../i18n'
 
 import siteConfig from '../../config/site.config'
 import SearchModal from './SearchModal'

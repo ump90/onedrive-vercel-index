@@ -65,6 +65,13 @@
 - 重新审视数据获取方式：区分服务端获取、客户端 SWR 获取与缓存策略
 - 评估是否保留全部 API 中转逻辑，或按运行时能力拆分 Node/Edge 方案
 
+当前执行进度（已落地）：
+
+- 已新增 `src/app/layout.tsx`，把全局样式、Font Awesome 初始化与字体注入收敛为 App Router 基线
+- 已将 `/api`、`/api/item`、`/api/search`、`/api/raw`、`/api/thumbnail`、`/api/name/[name]` 迁移为 Route Handlers，并删除 `src/pages/api`
+- 页面路由仍暂时保留在 `src/pages`，下一批迁移重点为首页/目录页与 OAuth 页面
+- 已移除 `next.config.js` 的 `i18n` 依赖，改为仓库内自管理的 `react-i18next` + cookie 语言方案，为后续页面迁移到 App Router 清除硬阻塞
+
 ## 4. 重点风险点
 
 ### 4.1 国际化方案

@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Trans } from 'next-i18next/pages'
+import { Trans } from '../i18n'
 
 const FourOhFour: React.FC<{ errorMsg: string }> = ({ errorMsg }) => {
   return (

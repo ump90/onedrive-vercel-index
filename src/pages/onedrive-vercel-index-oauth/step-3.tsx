@@ -3,9 +3,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation, Trans } from 'next-i18next/pages'
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
-import nextI18NextConfig from '../../utils/nextI18NextConfig'
 
 import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
@@ -13,6 +10,7 @@ import Footer from '../../components/Footer'
 
 import { getAuthPersonInfo, requestTokenWithAuthCode, sendTokenToServer } from '../../utils/oAuthHandler'
 import { LoadingIcon } from '../../components/Loading'
+import { getI18nServerProps, Trans, useTranslation } from '../../i18n'
 
 export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri }) {
   const router = useRouter()
@@ -224,7 +222,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
   )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getServerSideProps({ query, req }) {
   const { authCode } = query
 
   // Return if no auth code is present
@@ -233,7 +231,7 @@ export async function getServerSideProps({ query, locale }) {
       props: {
         error: 'No auth code present',
         description: 'Where is the auth code? Did you follow step 2 you silly donut?',
-        ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
+        ...getI18nServerProps(req),
       },
     }
   }
@@ -247,7 +245,7 @@ export async function getServerSideProps({ query, locale }) {
         error: response.error,
         description: response.errorDescription,
         errorUri: response.errorUri,
-        ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
+        ...getI18nServerProps(req),
       },
     }
   }
@@ -260,7 +258,7 @@ export async function getServerSideProps({ query, locale }) {
       expiryTime,
       accessToken,
       refreshToken,
-      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
+      ...getI18nServerProps(req),
     },
   }
 }

@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { useTranslation } from 'next-i18next/pages'
+import { useTranslation } from '../../i18n'
 import useSystemTheme from 'react-use-system-theme'
 import { useRouter } from 'next/router'
 

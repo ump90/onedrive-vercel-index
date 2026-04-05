@@ -1,7 +1,5 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
-import nextI18NextConfig from '../utils/nextI18NextConfig'
 
 import siteConfig from '../../config/site.config'
 import Navbar from '../components/Navbar'
@@ -9,6 +7,7 @@ import FileListing from '../components/FileListing'
 import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
+import { getI18nServerProps } from '../i18n'
 
 export default function Folders() {
   const { query } = useRouter()
@@ -35,10 +34,8 @@ export default function Folders() {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ req }) {
   return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
-    },
+    props: getI18nServerProps(req),
   }
 }

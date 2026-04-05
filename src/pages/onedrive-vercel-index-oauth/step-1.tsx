@@ -1,15 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useTranslation, Trans } from 'next-i18next/pages'
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
-import nextI18NextConfig from '../../utils/nextI18NextConfig'
 
 import siteConfig from '../../../config/site.config'
 import apiConfig from '../../../config/api.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { getI18nServerProps, Trans, useTranslation } from '../../i18n'
 
 export default function OAuthStep1() {
   const router = useRouter()
@@ -148,10 +146,8 @@ export default function OAuthStep1() {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ req }) {
   return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
-    },
+    props: getI18nServerProps(req),
   }
 }

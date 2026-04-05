@@ -7,7 +7,7 @@ import emojiRegex from 'emoji-regex'
 
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import { useTranslation } from 'next-i18next/pages'
+import { useTranslation } from '../i18n'
 
 import useLocalStorage from '../utils/useLocalStorage'
 import { getPreviewType, preview } from '../utils/getPreviewType'

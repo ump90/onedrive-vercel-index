@@ -2,7 +2,7 @@ import type { ParsedUrlQuery } from 'querystring'
 
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation } from 'next-i18next/pages'
+import { useTranslation } from '../i18n'
 
 const HomeCrumb = () => {
   const { t } = useTranslation()

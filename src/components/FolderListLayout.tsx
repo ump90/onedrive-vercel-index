@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { FC } from 'react'
 import { useClipboard } from 'use-clipboard-copy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation } from 'next-i18next/pages'
+import { useTranslation } from '../i18n'
 
 import { getBaseUrl } from '../utils/getBaseUrl'
 import { humanFileSize, formatModifiedDateTime } from '../utils/fileDetails'

@@ -3,15 +3,13 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation, Trans } from 'next-i18next/pages'
-import { serverSideTranslations } from 'next-i18next/pages/serverSideTranslations'
-import nextI18NextConfig from '../../utils/nextI18NextConfig'
 
 import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { LoadingIcon } from '../../components/Loading'
 import { extractAuthCodeFromRedirected, generateAuthorisationUrl } from '../../utils/oAuthHandler'
+import { getI18nServerProps, Trans, useTranslation } from '../../i18n'
 
 export default function OAuthStep2() {
   const router = useRouter()
@@ -142,10 +140,8 @@ export default function OAuthStep2() {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ req }) {
   return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'], nextI18NextConfig)),
-    },
+    props: getI18nServerProps(req),
   }
 }
