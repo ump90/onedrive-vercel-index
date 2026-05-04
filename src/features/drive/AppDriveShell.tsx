@@ -3,15 +3,16 @@
 import type { OdAPIResponse, OdFileObject, OdFolderChildren, OdFolderObject } from '../../types'
 
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { faFile, faFileAudio, faFileImage, faFilePdf, faFileVideo, faFlag, faFolder } from '@fortawesome/free-regular-svg-icons'
 import {
-  faArrowRight,
-  faChevronCircleDown,
-  faDownload,
-  faKey,
-  faTh,
-  faThList,
-} from '@fortawesome/free-solid-svg-icons'
+  faFile,
+  faFileAudio,
+  faFileImage,
+  faFilePdf,
+  faFileVideo,
+  faFlag,
+  faFolder,
+} from '@fortawesome/free-regular-svg-icons'
+import { faArrowRight, faChevronCircleDown, faDownload, faKey, faTh, faThList } from '@fortawesome/free-solid-svg-icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -25,8 +26,9 @@ import FourOhFour from '../../components/FourOhFour'
 import { DownloadBtnContainer, PreviewContainer } from '../../components/previews/Containers'
 import { useProtectedSWRInfinite } from '../../utils/fetchWithSWR'
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
-import { getPreviewType } from '../../utils/getPreviewType'
-import { getStoredToken, matchProtectedRoute } from '../../utils/protectedRouteHandler'
+import { getStoredToken, matchProtectedRoute } from '../auth/protected-route'
+import { getPreviewType } from '../preview/preview-type'
+import { itemPath, pathSegmentsToPath } from './path'
 import useLocalStorage from '../../utils/useLocalStorage'
 
 type LayoutName = 'List' | 'Grid'
@@ -56,18 +58,6 @@ function iconForItem(item: { name: string; folder?: unknown; image?: unknown; vi
     default:
       return faFile
   }
-}
-
-function pathSegmentsToPath(pathSegments: string[]): string {
-  if (pathSegments.length === 0) {
-    return '/'
-  }
-
-  return `/${pathSegments.map(segment => encodeURIComponent(segment)).join('/')}`
-}
-
-function itemPath(parentPath: string, name: string): string {
-  return `${parentPath === '/' ? '' : parentPath}/${encodeURIComponent(name)}`
 }
 
 function AppNavbar() {
@@ -103,7 +93,7 @@ function AppBreadcrumb({ pathSegments }: { pathSegments: string[] }) {
   }
 
   return (
-    <ol className="no-scrollbar inline-flex flex-row-reverse items-center gap-1 overflow-x-scroll text-sm text-gray-600 dark:text-gray-300 md:gap-3">
+    <ol className="no-scrollbar inline-flex flex-row-reverse items-center gap-1 overflow-x-scroll text-sm text-gray-600 md:gap-3 dark:text-gray-300">
       {pathSegments
         .slice(0)
         .reverse()
@@ -171,7 +161,7 @@ function AppAuth({ path }: { path: string }) {
         </p>
         <div className="flex items-center space-x-2">
           <input
-            className="flex-1 rounded-sm border border-gray-600/10 p-2 font-mono focus:outline-hidden focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
+            className="flex-1 rounded-sm border border-gray-600/10 p-2 font-mono focus:ring-3 focus:ring-blue-300 focus:outline-hidden dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
             autoFocus
             type="password"
             placeholder="************"
@@ -204,7 +194,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
       : `/api/thumbnail/?path=${href}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
 
     return (
-      <Link href={href} className="group rounded-sm p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-850">
+      <Link href={href} className="group dark:hover:bg-gray-850 rounded-sm p-2 transition-all hover:bg-gray-100">
         <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-sm border border-gray-900/10 dark:border-gray-500/30">
           {thumbnailUrl && !brokenThumbnail ? (
             <Image
@@ -232,7 +222,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
   }
 
   return (
-    <div className="grid grid-cols-12 items-center transition-all hover:bg-gray-100 dark:hover:bg-gray-850">
+    <div className="dark:hover:bg-gray-850 grid grid-cols-12 items-center transition-all hover:bg-gray-100">
       <Link href={href} className="col-span-12 grid grid-cols-10 items-center gap-2 px-3 py-2.5 md:col-span-10">
         <div className="col-span-10 flex items-center gap-2 truncate md:col-span-6">
           <span className="w-5 flex-shrink-0 text-center">
@@ -247,7 +237,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
       </Link>
       {!child.folder && (
         <a
-          className="col-span-2 hidden px-3 py-2.5 text-gray-500 hover:text-gray-900 dark:hover:text-white md:block"
+          className="col-span-2 hidden px-3 py-2.5 text-gray-500 hover:text-gray-900 md:block dark:hover:text-white"
           href={`/api/raw/?path=${href}`}
           title="Download"
         >
@@ -279,7 +269,7 @@ function FolderView({
 
   return (
     <div className="rounded-sm bg-white shadow-sm dark:bg-gray-900 dark:text-gray-100">
-      <div className="border-b border-gray-900/10 px-3 py-2 text-xs font-bold uppercase tracking-widest text-gray-600 dark:border-gray-500/30 dark:text-gray-400">
+      <div className="border-b border-gray-900/10 px-3 py-2 text-xs font-bold tracking-widest text-gray-600 uppercase dark:border-gray-500/30 dark:text-gray-400">
         {sortedChildren.length} item(s)
       </div>
       {layout === 'Grid' ? (
@@ -381,7 +371,7 @@ function AppDriveBrowser({ layout, path }: { layout: LayoutName; path: string })
           <div className="rounded-b bg-white dark:bg-gray-900 dark:text-gray-100">
             <button
               className={`flex w-full items-center justify-center space-x-2 p-3 disabled:cursor-not-allowed ${
-                isLoadingMore || isReachingEnd ? 'opacity-60' : 'hover:bg-gray-100 dark:hover:bg-gray-850'
+                isLoadingMore || isReachingEnd ? 'opacity-60' : 'dark:hover:bg-gray-850 hover:bg-gray-100'
               }`}
               onClick={() => setSize(size + 1)}
               disabled={isLoadingMore || isReachingEnd}

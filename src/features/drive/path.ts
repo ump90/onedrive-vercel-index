@@ -1,0 +1,59 @@
+import { posix as pathPosix } from 'path'
+
+import { getSiteConfig } from '../../lib/config/site'
+
+export function cleanDrivePath(
+  path: string,
+  { trimTrailingSlash = true }: { trimTrailingSlash?: boolean } = {},
+): string {
+  const cleanPath = pathPosix.resolve('/', pathPosix.normalize(path))
+
+  if (trimTrailingSlash) {
+    return cleanPath.replace(/\/$/, '')
+  }
+
+  return cleanPath
+}
+
+export function encodeDrivePath(path: string, baseDirectory = getSiteConfig().baseDirectory): string {
+  let encodedPath = pathPosix.join(pathPosix.resolve('/', baseDirectory), path)
+
+  if (encodedPath === '/' || encodedPath === '') {
+    return ''
+  }
+
+  encodedPath = encodedPath.replace(/\/$/, '')
+
+  return `:${encodeURIComponent(encodedPath)}`
+}
+
+export function pathSegmentsToPath(pathSegments: string[]): string {
+  if (pathSegments.length === 0) {
+    return '/'
+  }
+
+  return `/${pathSegments.map(segment => encodeURIComponent(segment)).join('/')}`
+}
+
+export function itemPath(parentPath: string, name: string): string {
+  return `${parentPath === '/' ? '' : parentPath}/${encodeURIComponent(name)}`
+}
+
+export function extractNextPageToken(nextLink?: string): string | null {
+  if (!nextLink) {
+    return null
+  }
+
+  return nextLink.match(/[?&]\$skiptoken=([^&]+)/i)?.[1] ?? null
+}
+
+export function sanitiseSearchQuery(query: string): string {
+  const sanitisedQuery = query
+    .replace(/'/g, "''")
+    .replace('<', ' &lt; ')
+    .replace('>', ' &gt; ')
+    .replace('?', ' ')
+    .replace('/', ' ')
+
+  return encodeURIComponent(sanitisedQuery)
+}
