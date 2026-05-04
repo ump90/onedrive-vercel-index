@@ -32,7 +32,7 @@ import siteConfig from '../../../config/site.config'
 import Footer from '../../components/Footer'
 import FourOhFour from '../../components/FourOhFour'
 import Loading from '../../components/Loading'
-import { DownloadBtnContainer, PreviewContainer } from '../../components/previews/Containers'
+import { PreviewContainer } from '../../components/previews/Containers'
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
 import useLocalStorage from '../../utils/useLocalStorage'
 import {
@@ -42,6 +42,7 @@ import {
   matchProtectedRoute,
   setStoredToken,
 } from '../auth/protected-route'
+import AppFilePreview from '../preview/AppFilePreview'
 import { getPreviewType } from '../preview/preview-type'
 import AppSearchModal from './AppSearchModal'
 import { itemPath, pathSegmentsToPath } from './path'
@@ -145,7 +146,7 @@ function AppNavbar() {
 
         <div className="flex flex-1 items-center justify-end gap-2 text-gray-700 dark:text-white">
           <button
-            className="flex h-8 min-w-0 flex-1 items-center justify-between gap-2 rounded-sm bg-gray-100 px-3 text-sm hover:opacity-80 dark:bg-gray-800 md:max-w-56"
+            className="flex h-8 min-w-0 flex-1 items-center justify-between gap-2 rounded-sm bg-gray-100 px-3 text-sm hover:opacity-80 md:max-w-56 dark:bg-gray-800"
             onClick={() => setSearchOpen(true)}
           >
             <span className="flex min-w-0 items-center gap-2">
@@ -291,7 +292,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
       : `/api/thumbnail/?path=${encodeURIComponent(href)}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
 
     return (
-      <Link href={href} className="group rounded-sm p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-850">
+      <Link href={href} className="group dark:hover:bg-gray-850 rounded-sm p-2 transition-all hover:bg-gray-100">
         <div className="relative flex h-32 items-center justify-center overflow-hidden rounded-sm border border-gray-900/10 dark:border-gray-500/30">
           {thumbnailUrl && !brokenThumbnail ? (
             <Image
@@ -319,7 +320,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
   }
 
   return (
-    <div className="grid grid-cols-12 items-center transition-all hover:bg-gray-100 dark:hover:bg-gray-850">
+    <div className="dark:hover:bg-gray-850 grid grid-cols-12 items-center transition-all hover:bg-gray-100">
       <Link href={href} className="col-span-12 grid grid-cols-10 items-center gap-2 px-3 py-2.5 md:col-span-10">
         <div className="col-span-10 flex items-center gap-2 truncate md:col-span-6">
           <span className="w-5 flex-shrink-0 text-center">
@@ -383,32 +384,7 @@ function FolderView({
 }
 
 function FileView({ file, path }: { file: OdFileObject; path: string }) {
-  const hashedToken = getStoredToken(path)
-  const rawUrl = `/api/raw/?path=${encodeURIComponent(path)}${hashedToken ? `&odpt=${hashedToken}` : ''}`
-  const previewType = getPreviewType(file.name.split('.').pop()?.toLowerCase() ?? '', { video: Boolean(file.video) })
-
-  return (
-    <>
-      <PreviewContainer>
-        <div className="rounded-sm border border-gray-900/10 px-8 py-20 text-center dark:border-gray-500/30">
-          <FontAwesomeIcon icon={iconForItem(file)} className="h-14 w-14" />
-          <div className="mx-auto mt-6 max-w-sm truncate text-sm font-medium">{file.name}</div>
-          <div className="mt-2 font-mono text-xs text-gray-500">{previewType ?? 'download'}</div>
-        </div>
-      </PreviewContainer>
-      <DownloadBtnContainer>
-        <div className="flex justify-center">
-          <a
-            href={rawUrl}
-            className="flex items-center gap-2 rounded-sm border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 dark:border-blue-500 dark:bg-gray-800 dark:text-blue-300"
-          >
-            <FontAwesomeIcon icon={faDownload} />
-            <span>Download</span>
-          </a>
-        </div>
-      </DownloadBtnContainer>
-    </>
-  )
+  return <AppFilePreview file={file} path={path} />
 }
 
 async function readDriveError(response: Response): Promise<AppDriveInitialError> {
@@ -521,7 +497,7 @@ function AppDriveBrowser({
           <div className="rounded-b bg-white dark:bg-gray-900 dark:text-gray-100">
             <button
               className={`flex w-full items-center justify-center space-x-2 p-3 disabled:cursor-not-allowed ${
-                loadingMore || !next ? 'opacity-60' : 'hover:bg-gray-100 dark:hover:bg-gray-850'
+                loadingMore || !next ? 'opacity-60' : 'dark:hover:bg-gray-850 hover:bg-gray-100'
               }`}
               onClick={loadMore}
               disabled={loadingMore || !next}

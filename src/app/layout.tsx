@@ -1,4 +1,6 @@
 import '@fortawesome/fontawesome-svg-core/styles.css'
+import 'katex/dist/katex.min.css'
+import 'plyr-react/plyr.css'
 import '../styles/globals.css'
 import '../styles/markdown-github.css'
 import '../lib/fontawesome'
