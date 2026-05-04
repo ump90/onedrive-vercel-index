@@ -10,6 +10,7 @@ import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 
 import useLocalStorage from '../utils/useLocalStorage'
+import { queryToPath } from '../utils/pathEncoding'
 import { getPreviewType, preview } from '../utils/getPreviewType'
 import { useProtectedSWRInfinite } from '../utils/fetchWithSWR'
 import { getExtension, getRawExtension, getFileIcon } from '../utils/getFileIcon'
@@ -49,22 +50,6 @@ const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
 const FileNavigation = dynamic(() => import('./FileNavigation'), {
   ssr: false,
 })
-
-/**
- * Convert url query into path string
- *
- * @param query Url query property
- * @returns Path string
- */
-const queryToPath = (query?: ParsedUrlQuery) => {
-  if (query) {
-    const { path } = query
-    if (!path) return '/'
-    if (typeof path === 'string') return `/${encodeURIComponent(path)}`
-    return `/${path.map(p => encodeURIComponent(p)).join('/')}`
-  }
-  return '/'
-}
 
 // Render the icon of a folder child (may be a file or a folder), use emoji if the name of the child contains emoji
 const renderEmoji = (name: string) => {
