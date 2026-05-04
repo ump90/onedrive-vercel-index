@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import axios from 'axios'
 
-import { checkProtectedRoute, getAccessToken } from '../../../features/auth'
+import { checkProtectedRoute, getAccessToken, getProtectedRouteTokenFromCookies } from '../../../features/auth'
 import { cleanDrivePath, getRawDownloadInfo } from '../../../features/drive'
 import { getApiConfig } from '../../../lib/config/api'
 import { getProxiedUrl } from '../../../utils/cfProxy'
@@ -45,7 +45,8 @@ export async function handleRawRequest(request: NextRequest): Promise<Response> 
     }
 
     const cleanPath = cleanDrivePath(path, { trimTrailingSlash: false })
-    const odTokenHeader = request.headers.get('od-protected-token') ?? odpt
+    const odTokenHeader =
+      request.headers.get('od-protected-token') || odpt || getProtectedRouteTokenFromCookies(cleanPath, request.cookies)
     const { code, message } = await checkProtectedRoute({ cleanPath, accessToken, odTokenHeader })
 
     if (code !== 200) {

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { checkProtectedRoute, getAccessToken } from '../../../features/auth'
+import { checkProtectedRoute, getAccessToken, getProtectedRouteTokenFromCookies } from '../../../features/auth'
 import { cleanDrivePath, getThumbnailUrl } from '../../../features/drive'
 import { getApiConfig } from '../../../lib/config/api'
 import { getProxiedUrl } from '../../../utils/cfProxy'
@@ -43,7 +43,11 @@ export async function GET(request: NextRequest) {
     }
 
     const cleanPath = cleanDrivePath(path, { trimTrailingSlash: false })
-    const { code, message } = await checkProtectedRoute({ cleanPath, accessToken, odTokenHeader: odpt })
+    const { code, message } = await checkProtectedRoute({
+      cleanPath,
+      accessToken,
+      odTokenHeader: odpt || getProtectedRouteTokenFromCookies(cleanPath, request.cookies),
+    })
 
     if (code !== 200) {
       return protectedRouteErrorResponse(code, message)

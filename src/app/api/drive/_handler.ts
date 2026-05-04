@@ -1,6 +1,11 @@
 import type { NextRequest } from 'next/server'
 
-import { checkProtectedRoute, getAccessToken, storeObfuscatedAuthTokens } from '../../../features/auth'
+import {
+  checkProtectedRoute,
+  getAccessToken,
+  getProtectedRouteTokenFromCookies,
+  storeObfuscatedAuthTokens,
+} from '../../../features/auth'
 import { cleanDrivePath, getDrivePathResponse } from '../../../features/drive'
 import { getApiConfig } from '../../../lib/config/api'
 import {
@@ -68,7 +73,8 @@ export async function handleDriveRequest(request: NextRequest): Promise<Response
     const { code, message } = await checkProtectedRoute({
       cleanPath,
       accessToken,
-      odTokenHeader: request.headers.get('od-protected-token') ?? undefined,
+      odTokenHeader:
+        request.headers.get('od-protected-token') || getProtectedRouteTokenFromCookies(cleanPath, request.cookies),
     })
 
     if (code !== 200) {

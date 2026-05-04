@@ -16,14 +16,110 @@ type DownloadUrlResponse = {
   '@microsoft.graph.downloadUrl'?: string
 }
 
+type CookieReader = {
+  get: (name: string) => { value?: string } | undefined
+}
+
 function encryptToken(token: string): string {
   return sha256(token).toString()
 }
 
+function safeDecodeRoute(route: string): string {
+  try {
+    return decodeURIComponent(route)
+  } catch {
+    return route
+  }
+}
+
+function routePrefixCandidates(route: string): string[] {
+  const decodedRoute = safeDecodeRoute(route)
+  const encodedRoute = decodedRoute
+    .split('/')
+    .map(part => encodeURIComponent(part))
+    .join('/')
+
+  return Array.from(new Set([route, decodedRoute, encodedRoute])).map(candidate =>
+    `${candidate.toLowerCase().replace(/\/$/, '')}/`,
+  )
+}
+
+function cookieNameSuffix(value: string): string {
+  return Array.from(new TextEncoder().encode(value))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+export function getProtectedRouteTokenCookieNameForRoute(protectedRoute: string): string {
+  return `odpt_${cookieNameSuffix(protectedRoute)}`
+}
+
+export function getProtectedRouteTokenCookieName(path: string): string {
+  const authTokenPath = matchProtectedRoute(path)
+
+  return authTokenPath ? getProtectedRouteTokenCookieNameForRoute(authTokenPath) : ''
+}
+
+export function getProtectedRouteTokenFromCookies(path: string, cookies: CookieReader): string | undefined {
+  const cookieName = getProtectedRouteTokenCookieName(path)
+
+  return cookieName ? cookies.get(cookieName)?.value : undefined
+}
+
+export function setStoredToken(path: string, token: string): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  const authTokenPath = matchProtectedRoute(path)
+
+  if (!authTokenPath) {
+    return
+  }
+
+  localStorage.setItem(authTokenPath, JSON.stringify(token))
+  document.cookie = `${getProtectedRouteTokenCookieNameForRoute(authTokenPath)}=${encryptToken(
+    token,
+  )}; Path=/; Max-Age=2592000; SameSite=Lax`
+  window.dispatchEvent(new Event('local-storage'))
+}
+
+export function clearStoredTokens(protectedRoutes = getSiteConfig().protectedRoutes): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  protectedRoutes.forEach(route => {
+    localStorage.removeItem(route)
+    document.cookie = `${getProtectedRouteTokenCookieNameForRoute(route)}=; Path=/; Max-Age=0; SameSite=Lax`
+  })
+  window.dispatchEvent(new Event('local-storage'))
+}
+
 export function getStoredToken(path: string): string | null {
   const authTokenPath = matchProtectedRoute(path)
-  const storedToken =
-    typeof window !== 'undefined' && authTokenPath ? JSON.parse(localStorage.getItem(authTokenPath) as string) : ''
+  let storedToken = ''
+
+  if (typeof window !== 'undefined' && authTokenPath) {
+    try {
+      storedToken = JSON.parse(localStorage.getItem(authTokenPath) as string) ?? ''
+    } catch {
+      storedToken = ''
+    }
+  }
+
+  if (!storedToken && typeof document !== 'undefined' && authTokenPath) {
+    const cookieName = getProtectedRouteTokenCookieNameForRoute(authTokenPath)
+    const cookieToken = document.cookie
+      .split(';')
+      .map(cookie => cookie.trim())
+      .find(cookie => cookie.startsWith(`${cookieName}=`))
+      ?.split('=')
+      .slice(1)
+      .join('=')
+
+    return cookieToken || null
+  }
 
   return storedToken ? encryptToken(storedToken) : null
 }
@@ -40,15 +136,15 @@ export function compareHashedToken({
 
 export function matchProtectedRoute(route: string, protectedRoutes = getSiteConfig().protectedRoutes): string {
   let authTokenPath = ''
+  const routeCandidates = routePrefixCandidates(route)
 
   for (const protectedRoute of protectedRoutes) {
+    const protectedRouteCandidates = routePrefixCandidates(protectedRoute)
+
     if (
       protectedRoute &&
-      route.startsWith(
-        protectedRoute
-          .split('/')
-          .map(part => encodeURIComponent(part))
-          .join('/'),
+      routeCandidates.some(routeCandidate =>
+        protectedRouteCandidates.some(protectedRouteCandidate => routeCandidate.startsWith(protectedRouteCandidate)),
       )
     ) {
       authTokenPath = protectedRoute
