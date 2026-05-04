@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.js";
 
 @layer utilities {
   /* Chrome, Safari and Opera */
@@ -26,5 +25,5 @@
 }
 pre[class*='language-'],
 code[class*='language-'] {
-  @apply font-mono !important;
+  @apply !font-mono;
 }

@@ -1,12 +1,21 @@
 import { posix as pathPosix } from 'path'
+import type { OutgoingHttpHeaders } from 'http'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import axios, { AxiosResponseHeaders } from 'axios'
+import axios from 'axios'
 import Cors from 'cors'
 
 import { driveApi, cacheControlHeader } from '../../../config/api.config'
 import { encodePath, getAccessToken, checkAuthRoute } from '.'
 import { getProxiedUrl, isCfProxyEnabled } from '../../utils/cfProxy'
+
+function toOutgoingHeaders(headers: Record<string, unknown>): OutgoingHttpHeaders {
+  return Object.fromEntries(
+    Object.entries(headers)
+      .filter(([, value]) => value !== undefined && value !== null && value !== false)
+      .map(([key, value]) => [key, Array.isArray(value) ? value.map(String) : String(value)])
+  )
+}
 
 // CORS middleware for raw links: https://nextjs.org/docs/api-routes/api-middlewares
 export function runCorsMiddleware(req: NextApiRequest, res: NextApiResponse) {
@@ -77,9 +86,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { headers, data: stream } = await axios.get(downloadUrl, {
           responseType: 'stream',
         })
-        headers['Cache-Control'] = cacheControlHeader
+        const responseHeaders = toOutgoingHeaders(headers)
+        responseHeaders['Cache-Control'] = cacheControlHeader
         // Send data stream as response
-        res.writeHead(200, headers as AxiosResponseHeaders)
+        res.writeHead(200, responseHeaders)
         stream.pipe(res)
       } else {
         // Use Cloudflare proxy if enabled, otherwise redirect directly
