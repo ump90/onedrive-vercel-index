@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useCallback } from 'react'
+import { FC, useEffect, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import useSWR from 'swr'
@@ -39,12 +39,10 @@ const FileNavigation: FC = () => {
     { revalidateOnFocus: false }
   )
 
-  // Get sibling files (same type as current file)
-  const [prevFile, setPrevFile] = useState<string | null>(null)
-  const [nextFile, setNextFile] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!data || !('folder' in data) || !fileName) return
+  const { prevFile, nextFile } = useMemo(() => {
+    if (!data || !('folder' in data) || !fileName) {
+      return { prevFile: null, nextFile: null }
+    }
 
     const currentExtension = getExtension(fileName)
     const currentPreviewType = getPreviewType(currentExtension)
@@ -62,16 +60,9 @@ const FileNavigation: FC = () => {
     // Find current file index
     const currentIndex = siblingFiles.findIndex((item: any) => item.name === fileName)
 
-    if (currentIndex > 0) {
-      setPrevFile(siblingFiles[currentIndex - 1].name)
-    } else {
-      setPrevFile(null)
-    }
-
-    if (currentIndex >= 0 && currentIndex < siblingFiles.length - 1) {
-      setNextFile(siblingFiles[currentIndex + 1].name)
-    } else {
-      setNextFile(null)
+    return {
+      prevFile: currentIndex > 0 ? siblingFiles[currentIndex - 1].name : null,
+      nextFile: currentIndex >= 0 && currentIndex < siblingFiles.length - 1 ? siblingFiles[currentIndex + 1].name : null,
     }
   }, [data, fileName])
 
