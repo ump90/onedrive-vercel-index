@@ -38,7 +38,7 @@ const MarkdownPreview: FC<{
       const resolvedSrc = srcString
         ? isUrlAbsolute(srcString)
           ? srcString
-          : `/api/?path=${parentPath}/${srcString}&raw=true`
+          : `/api/raw/?path=${parentPath}/${srcString}`
         : undefined
 
       return (

@@ -126,7 +126,7 @@ export async function getAuthPersonInfo(accessToken: string) {
 
 export async function sendTokenToServer(accessToken: string, refreshToken: string, expiryTime: string) {
   return axios.post(
-    '/api',
+    '/api/drive',
     {
       obfuscatedAccessToken: obfuscateToken(accessToken),
       accessTokenExpiry: parseInt(expiryTime),

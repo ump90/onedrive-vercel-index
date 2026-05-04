@@ -34,7 +34,7 @@ const FileNavigation: FC = () => {
 
   // Fetch sibling files from parent folder
   const { data, error } = useSWR(
-    fileName ? [`/api/?path=${apiParentPath}`, hashedToken] : null,
+    fileName ? [`/api/drive/?path=${apiParentPath}`, hashedToken] : null,
     fetcher,
     { revalidateOnFocus: false }
   )
