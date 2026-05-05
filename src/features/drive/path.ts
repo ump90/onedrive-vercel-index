@@ -27,6 +27,18 @@ export function encodeDrivePath(path: string, baseDirectory = getSiteConfig().ba
   return `:${encodeURIComponent(encodedPath)}`
 }
 
+export function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
+export function decodePathSegments(pathSegments: string[]): string[] {
+  return pathSegments.map(decodePathSegment)
+}
+
 export function pathSegmentsToPath(pathSegments: string[]): string {
   if (pathSegments.length === 0) {
     return '/'

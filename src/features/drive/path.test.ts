@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   cleanDrivePath,
+  decodePathSegments,
   encodeDrivePath,
   extractNextPageToken,
   itemPath,
@@ -25,6 +26,11 @@ describe('drive path helpers', () => {
       '/%F0%9F%A5%9F%20Some%20test%20files/read%20me.md',
     )
     expect(itemPath('/folder', 'read me.md')).toBe('/folder/read%20me.md')
+  })
+
+  it('decodes encoded route params before building OneDrive paths', () => {
+    expect(decodePathSegments(['%E7%95%AA%E5%89%A7'])).toEqual(['番剧'])
+    expect(pathSegmentsToPath(decodePathSegments(['%E7%95%AA%E5%89%A7']))).toBe('/%E7%95%AA%E5%89%A7')
   })
 
   it('extracts Microsoft Graph pagination tokens from next links', () => {

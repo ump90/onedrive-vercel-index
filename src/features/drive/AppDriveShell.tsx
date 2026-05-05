@@ -9,7 +9,7 @@ import { checkProtectedRoute, getProtectedRouteTokenFromCookies } from '../auth/
 import { GraphRequestError } from '../../lib/graph/errors'
 import { RedisConfigurationError } from '../../lib/redis/errors'
 import AppDriveClientShell from './AppDriveClientShell'
-import { cleanDrivePath, getDrivePathResponse, pathSegmentsToPath } from './index'
+import { cleanDrivePath, decodePathSegments, getDrivePathResponse, pathSegmentsToPath } from './index'
 
 function driveLoadError(error: unknown): AppDriveInitialError {
   if (error instanceof GraphRequestError) {
@@ -78,8 +78,9 @@ async function loadInitialDriveResponse(path: string): Promise<{
 }
 
 export default async function AppDriveShell({ pathSegments }: { pathSegments: string[] }) {
-  const path = pathSegmentsToPath(pathSegments)
+  const decodedPathSegments = decodePathSegments(pathSegments)
+  const path = pathSegmentsToPath(decodedPathSegments)
   const { error, response } = await loadInitialDriveResponse(path)
 
-  return <AppDriveClientShell initialError={error} initialResponse={response} pathSegments={pathSegments} />
+  return <AppDriveClientShell initialError={error} initialResponse={response} pathSegments={decodedPathSegments} />
 }
