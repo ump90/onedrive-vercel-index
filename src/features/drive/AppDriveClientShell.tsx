@@ -16,7 +16,6 @@ import {
   faArrowRight,
   faChevronCircleDown,
   faDownload,
-  faKey,
   faSearch,
   faSignOutAlt,
   faTh,
@@ -169,14 +168,6 @@ function AppNavbar() {
           )}
 
           <AppSwitchLang />
-
-          <Link
-            className="flex h-8 items-center gap-2 rounded-sm bg-gray-100 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-white"
-            href="/onedrive-vercel-index-oauth/step-1"
-          >
-            <FontAwesomeIcon icon={faKey} className="h-3 w-3" />
-            <span className="hidden sm:inline">OAuth</span>
-          </Link>
         </div>
       </div>
     </div>
