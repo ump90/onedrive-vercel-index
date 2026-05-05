@@ -3,6 +3,7 @@
 import type { ComponentType, CSSProperties, ReactNode } from 'react'
 import type { Components } from 'react-markdown'
 import type { OdFileObject } from '../../types'
+import type { PDFViewerProps } from '@embedpdf/react-pdf-viewer'
 import type { PlyrOptions, PlyrProps, PlyrSource } from 'plyr-react'
 
 import { faCopy, faFile, faFileAudio, faFileImage, faFilePdf, faFileVideo } from '@fortawesome/free-regular-svg-icons'
@@ -47,10 +48,15 @@ const Plyr = dynamic(() => import('plyr-react').then(mod => mod.default), {
   loading: () => <Loading loadingText="Loading player ..." />,
 }) as ComponentType<PlyrProps>
 
+const EmbedPdfViewer = dynamic(() => import('@embedpdf/react-pdf-viewer').then(mod => mod.PDFViewer), {
+  ssr: false,
+  loading: () => <Loading loadingText="Loading PDF viewer ..." />,
+}) as ComponentType<PDFViewerProps>
+
 function urlWithPath(
   endpoint: string,
   path: string,
-  options?: { token?: string | null; proxy?: boolean; size?: string },
+  options?: { token?: string | null; proxy?: boolean; size?: string; disposition?: 'inline' | 'attachment' },
 ) {
   const params = new URLSearchParams({ path })
 
@@ -64,6 +70,10 @@ function urlWithPath(
 
   if (options?.size) {
     params.set('size', options.size)
+  }
+
+  if (options?.disposition) {
+    params.set('disposition', options.disposition)
   }
 
   return `${endpoint}?${params.toString()}`
@@ -103,7 +113,7 @@ function useFileText(path: string): FileTextState {
   useEffect(() => {
     const controller = new AbortController()
     const token = getStoredToken(path)
-    const url = urlWithPath('/api/raw/', path, { token, proxy: true })
+    const url = urlWithPath('/api/raw/', path, { token, proxy: true, disposition: 'inline' })
 
     fetch(url, { signal: controller.signal })
       .then(async response => {
@@ -163,6 +173,8 @@ function PreviewActionButton({
 function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
   const { t } = useTranslation()
   const origin = useBrowserOrigin()
+  const token = getStoredToken(path)
+  const downloadUrl = urlWithPath('/api/raw/', path, { token, disposition: 'attachment' })
   const [copied, setCopied] = useState(false)
 
   const copyRawLink = async () => {
@@ -178,7 +190,7 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
       <div className="flex flex-wrap justify-center gap-2">
         <a
           className="dark:hover:bg-gray-850 flex items-center gap-2 rounded-sm border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-blue-500 dark:bg-gray-800 dark:text-blue-300"
-          href={rawUrl}
+          href={downloadUrl}
           title={`${t('Download')} ${path}`}
         >
           <FontAwesomeIcon icon={faDownload} />
@@ -297,7 +309,7 @@ function MarkdownPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: strin
         const isAbsoluteUrl = srcString.includes('://') || srcString.startsWith('//') || srcString.startsWith('data:')
         const resolvedSrc = isAbsoluteUrl
           ? srcString
-          : urlWithPath('/api/raw/', joinMarkdownPath(parentPath, srcString), { token })
+          : urlWithPath('/api/raw/', joinMarkdownPath(parentPath, srcString), { token, disposition: 'inline' })
 
         return (
           // eslint-disable-next-line @next/next/no-img-element
@@ -350,7 +362,13 @@ function PdfPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) 
   return (
     <>
       <div className="h-[80vh] w-full overflow-hidden rounded-sm border border-gray-900/10 bg-white shadow-sm dark:border-gray-500/30 dark:bg-gray-900">
-        <iframe src={rawUrl} title={path} className="h-full w-full" />
+        <EmbedPdfViewer
+          config={{
+            src: rawUrl,
+            theme: { preference: 'system' },
+          }}
+          className="h-full w-full"
+        />
       </div>
       <PreviewActions path={path} rawUrl={rawUrl} />
     </>
@@ -440,7 +458,7 @@ function VideoPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
   const token = getStoredToken(path)
   const thumbnailUrl = urlWithPath('/api/thumbnail/', path, { token, size: 'large' })
   const subtitlePath = `${path.substring(0, path.lastIndexOf('.'))}.vtt`
-  const subtitleUrl = urlWithPath('/api/raw/', subtitlePath, { token })
+  const subtitleUrl = urlWithPath('/api/raw/', subtitlePath, { token, disposition: 'inline' })
   const extension = getExtension(file.name)
   const isFlv = extension === 'flv'
 
@@ -558,7 +576,7 @@ function DefaultDownloadPreview({ file, path, rawUrl }: AppFilePreviewProps & { 
 
 export default function AppFilePreview({ file, path }: AppFilePreviewProps) {
   const token = getStoredToken(path)
-  const rawUrl = urlWithPath('/api/raw/', path, { token })
+  const rawUrl = urlWithPath('/api/raw/', path, { token, disposition: 'inline' })
   const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
   switch (previewType) {
