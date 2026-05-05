@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { i18n, localePath } = require('./next-i18next.config')
+const i18n = require('./i18n.config')
 
 module.exports = {
   createOldCatalogs: false,
@@ -12,7 +12,7 @@ module.exports = {
   contextSeparator: '——',
   lineEnding: 'lf',
   locales: i18n.locales,
-  output: path.join(localePath, '$LOCALE/$NAMESPACE.json'),
+  output: path.join(i18n.localePath, '$LOCALE/$NAMESPACE.json'),
   input: ['**/*.{ts,tsx}', '!**/node_modules/**'],
-  sort: true
+  sort: true,
 }
