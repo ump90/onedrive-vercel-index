@@ -43,7 +43,7 @@ function parentPathForFile(path: string): string {
   return parentPath || '/'
 }
 
-function fileNavigationItem(parentPath: string, item: DriveItemIdentity): OdFileNavigationItem {
+function fileNavigationItem(parentPath: string, item: Pick<DriveItemIdentity, 'name'>): OdFileNavigationItem {
   return { name: item.name, path: itemPath(parentPath, item.name) }
 }
 
