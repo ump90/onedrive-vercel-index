@@ -21,16 +21,14 @@ describe('drive path helpers', () => {
     expect(encodeDrivePath('/nested/read me.md', '/Shared')).toBe(':%2FShared%2Fnested%2Fread%20me.md')
   })
 
-  it('keeps URL path segments separately encoded', () => {
-    expect(pathSegmentsToPath(['🥟 Some test files', 'read me.md'])).toBe(
-      '/%F0%9F%A5%9F%20Some%20test%20files/read%20me.md',
-    )
+  it('keeps decoded drive paths unescaped for Graph path encoding', () => {
+    expect(pathSegmentsToPath(['🥟 Some test files', 'read me.md'])).toBe('/🥟 Some test files/read me.md')
     expect(itemPath('/folder', 'read me.md')).toBe('/folder/read%20me.md')
   })
 
   it('decodes encoded route params before building OneDrive paths', () => {
     expect(decodePathSegments(['%E7%95%AA%E5%89%A7'])).toEqual(['番剧'])
-    expect(pathSegmentsToPath(decodePathSegments(['%E7%95%AA%E5%89%A7']))).toBe('/%E7%95%AA%E5%89%A7')
+    expect(pathSegmentsToPath(decodePathSegments(['%E7%95%AA%E5%89%A7']))).toBe('/番剧')
   })
 
   it('extracts Microsoft Graph pagination tokens from next links', () => {

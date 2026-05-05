@@ -44,7 +44,7 @@ export function pathSegmentsToPath(pathSegments: string[]): string {
     return '/'
   }
 
-  return `/${pathSegments.map(segment => encodeURIComponent(segment)).join('/')}`
+  return `/${pathSegments.join('/')}`
 }
 
 export function itemPath(parentPath: string, name: string): string {
