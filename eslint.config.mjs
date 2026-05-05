@@ -5,7 +5,7 @@ const config = [
   ...nextVitals,
   prettier,
   {
-    ignores: ['.next/**', 'cloudflare-worker/**', 'next-env.d.ts'],
+    ignores: ['.next/**', '.pnpm-store/**', 'cloudflare-worker/**', 'next-env.d.ts', 'node_modules/**'],
   },
 ]
 

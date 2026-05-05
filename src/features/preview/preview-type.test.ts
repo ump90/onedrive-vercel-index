@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getLanguageByFileName, getPreviewType, preview } from './getPreviewType'
+import { getLanguageByFileName, getPreviewType, preview } from './preview-type'
 
 describe('getPreviewType', () => {
   it('maps common preview extensions', () => {
