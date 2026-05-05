@@ -1,6 +1,7 @@
 import type {
   OdAPIResponse,
   OdDriveItem,
+  OdFileNavigationItem,
   OdFileObject,
   OdFolderChildren,
   OdFolderObject,
@@ -13,7 +14,7 @@ import type {
 import { getApiConfig } from '../../lib/config/api'
 import { getSiteConfig } from '../../lib/config/site'
 import { graphGet } from '../../lib/graph/client'
-import { encodeDrivePath, extractNextPageToken, sanitiseSearchQuery } from './path'
+import { encodeDrivePath, extractNextPageToken, itemPath, sanitiseSearchQuery } from './path'
 
 type DownloadUrlResponse = {
   id: string
@@ -35,6 +36,60 @@ type DriveItemIdentity = {
 type ThumbnailSize = 'large' | 'medium' | 'small'
 
 const driveItemSelect = 'name,size,id,lastModifiedDateTime,folder,file,video,image'
+
+function parentPathForFile(path: string): string {
+  const parentPath = path.substring(0, path.lastIndexOf('/'))
+
+  return parentPath || '/'
+}
+
+function fileNavigationItem(parentPath: string, item: DriveItemIdentity): OdFileNavigationItem {
+  return { name: item.name, path: itemPath(parentPath, item.name) }
+}
+
+async function getFileNavigation({
+  accessToken,
+  cleanPath,
+  currentFileName,
+}: {
+  accessToken: string
+  cleanPath: string
+  currentFileName: string
+}): Promise<OdAPIResponse['fileNavigation']> {
+  const parentPath = parentPathForFile(cleanPath)
+  const parentRequestPath = encodeDrivePath(parentPath)
+  const parentRequestUrl = `${getApiConfig().driveApi}/root${parentRequestPath}`
+  const isRoot = parentRequestPath === ''
+  let next = ''
+  const files: OdFileNavigationItem[] = []
+
+  do {
+    const folderData = await graphGet<OdFolderObject>(`${parentRequestUrl}${isRoot ? '' : ':'}/children`, accessToken, {
+      params: {
+        select: driveItemSelect,
+        $top: getSiteConfig().maxItems,
+        ...(next ? { $skipToken: next } : {}),
+      },
+    })
+
+    const sortedFiles = folderData.value
+      .filter(item => item.file && item.name !== '.password')
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
+
+    files.push(...sortedFiles.map(item => fileNavigationItem(parentPath, item)))
+
+    next = extractNextPageToken(folderData['@odata.nextLink']) ?? ''
+  } while (next)
+
+  const sortedFiles = files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
+  const currentIndex = sortedFiles.findIndex(item => item.name === currentFileName)
+
+  if (currentIndex === -1) {
+    return undefined
+  }
+
+  return { previous: sortedFiles[currentIndex - 1], next: sortedFiles[currentIndex + 1] }
+}
 
 export async function getDrivePathResponse({
   cleanPath,
@@ -72,7 +127,10 @@ export async function getDrivePathResponse({
     return nextPage ? { folder: folderData, next: nextPage } : { folder: folderData }
   }
 
-  return { file: identityData as OdFileObject }
+  return {
+    file: identityData as OdFileObject,
+    fileNavigation: await getFileNavigation({ accessToken, cleanPath, currentFileName: identityData.name }),
+  }
 }
 
 export async function getRawDownloadInfo({

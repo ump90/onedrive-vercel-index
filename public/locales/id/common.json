@@ -77,6 +77,7 @@
     "Logout": "Keluar",
     "MIME type": "Tipe MIME",
     "Name": "Nama",
+    "Next file": "Berkas berikutnya",
     "No more files": "Tidak ada berkas lagi",
     "Nothing here.": "Tidak ada apa apa disini.",
     "OAuth Step 1 - {{title}}": "Langkah 1 OAuth - {{title}}",
@@ -91,6 +92,7 @@
     "Open URL{{url}}": "Buka URL{{url}}",
     "Press <2>F12</2> and open devtools for more details, or seek help at <6>onedrive-vercel-index discussions</6>.": "Tekan <2>F12</2> dan buka devtools untuk detail lebih lanjut, atau cari bantuan di <6>diskusi onedrive-vercel-index</6>.",
     "Proceed to OAuth": "Lanjut ke OAuth",
+    "Previous file": "Berkas sebelumnya",
     "Requesting tokens": "Meminta token",
     "Restart": "Mulai Ulang",
     "revisit home and do a hard refresh.": "kunjungi halaman utama lagi dan lakukan hard refresh.",
@@ -120,4 +122,3 @@
     "Where is the auth code? Did you follow step 2 you silly donut?": "Mana kode otorisasinya? Apakah kamu mengikuti langkah 2 dasar kamu donat bodoh?",
     "Whoops, looks like we got a problem: {{error}}.": "Waduh, sepertinya kita mendapatkan masalah : {{error}}."
   }
-

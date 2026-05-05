@@ -1,6 +1,6 @@
 'use client'
 
-import type { OdAPIResponse, OdFileObject, OdFolderChildren, OdFolderObject } from '../../types'
+import type { OdAPIResponse, OdFileNavigationItem, OdFileObject, OdFolderChildren, OdFolderObject } from '../../types'
 
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
@@ -13,6 +13,7 @@ import {
   faFolder,
 } from '@fortawesome/free-regular-svg-icons'
 import {
+  faArrowLeft,
   faArrowRight,
   faChevronCircleDown,
   faDownload,
@@ -387,8 +388,51 @@ function FolderView({
   )
 }
 
-function FileView({ file, path }: { file: OdFileObject; path: string }) {
-  return <AppFilePreview file={file} path={path} />
+function FileNavigationLink({ direction, item }: { direction: 'previous' | 'next'; item?: OdFileNavigationItem }) {
+  const { t } = useTranslation()
+  const icon = direction === 'previous' ? faArrowLeft : faArrowRight
+  const label = direction === 'previous' ? t('Previous file') : t('Next file')
+  const content = (
+    <>
+      {direction === 'previous' && <FontAwesomeIcon icon={icon} />}
+      <span>{label}</span>
+      <span className="max-w-40 truncate font-normal text-gray-500 dark:text-gray-400">{item?.name ?? t('Unavailable')}</span>
+      {direction === 'next' && <FontAwesomeIcon icon={icon} />}
+    </>
+  )
+  const className = `flex min-w-0 items-center gap-2 rounded-sm border px-4 py-2 text-sm font-medium ${
+    item
+      ? 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-850'
+      : 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-500'
+  }`
+
+  if (!item) {
+    return <span className={className}>{content}</span>
+  }
+
+  return (
+    <Link href={item.path} className={className} title={item.name}>
+      {content}
+    </Link>
+  )
+}
+
+function FileNavigationControls({ navigation }: { navigation?: OdAPIResponse['fileNavigation'] }) {
+  return (
+    <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row">
+      <FileNavigationLink direction="previous" item={navigation?.previous} />
+      <FileNavigationLink direction="next" item={navigation?.next} />
+    </div>
+  )
+}
+
+function FileView({ file, fileNavigation, path }: { file: OdFileObject; fileNavigation?: OdAPIResponse['fileNavigation']; path: string }) {
+  return (
+    <>
+      <FileNavigationControls navigation={fileNavigation} />
+      <AppFilePreview file={file} path={path} />
+    </>
+  )
 }
 
 async function readDriveError(response: Response): Promise<AppDriveInitialError> {
@@ -517,7 +561,7 @@ function AppDriveBrowser({
   }
 
   if (firstResponse.file) {
-    return <FileView file={firstResponse.file} path={path} />
+    return <FileView file={firstResponse.file} fileNavigation={firstResponse.fileNavigation} path={path} />
   }
 
   return (
