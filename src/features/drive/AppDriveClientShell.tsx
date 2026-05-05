@@ -33,6 +33,8 @@ import Footer from '../../components/Footer'
 import FourOhFour from '../../components/FourOhFour'
 import Loading from '../../components/Loading'
 import { PreviewContainer } from '../../components/previews/Containers'
+import AppSwitchLang from '../i18n/AppSwitchLang'
+import { useTranslation } from '../i18n/client'
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
 import useLocalStorage from '../../utils/useLocalStorage'
 import {
@@ -114,6 +116,7 @@ function subscribeStoredToken(onStoreChange: () => void) {
 
 function AppNavbar() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [searchOpen, setSearchOpen] = useState(false)
   const tokenPresent = useSyncExternalStore(subscribeStoredToken, hasStoredProtectedToken, () => false)
 
@@ -151,19 +154,21 @@ function AppNavbar() {
           >
             <span className="flex min-w-0 items-center gap-2">
               <FontAwesomeIcon icon={faSearch} className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">Search ...</span>
+              <span className="truncate">{t('Search ...')}</span>
             </span>
           </button>
 
           {tokenPresent && (
             <button
               className="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-100 hover:opacity-80 dark:bg-gray-800"
-              title="Logout"
+              title={t('Logout')}
               onClick={clearTokens}
             >
               <FontAwesomeIcon icon={faSignOutAlt} className="h-3 w-3" />
             </button>
           )}
+
+          <AppSwitchLang />
 
           <Link
             className="flex h-8 items-center gap-2 rounded-sm bg-gray-100 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-white"
@@ -179,12 +184,14 @@ function AppNavbar() {
 }
 
 function AppBreadcrumb({ pathSegments }: { pathSegments: string[] }) {
+  const { t } = useTranslation()
+
   if (pathSegments.length === 0) {
     return (
       <div className="text-sm text-gray-600 transition-all duration-75 hover:opacity-80 dark:text-gray-300">
         <Link href="/" className="flex items-center">
           <FontAwesomeIcon className="h-3 w-3" icon={faFlag} />
-          <span className="ml-2 font-medium">Home</span>
+          <span className="ml-2 font-medium">{t('Home')}</span>
         </Link>
       </div>
     )
@@ -214,7 +221,7 @@ function AppBreadcrumb({ pathSegments }: { pathSegments: string[] }) {
       <li className="flex-shrink-0 transition-all duration-75 hover:opacity-80">
         <Link href="/" className="flex items-center">
           <FontAwesomeIcon className="h-3 w-3" icon={faFlag} />
-          <span className="ml-2 font-medium">Home</span>
+          <span className="ml-2 font-medium">{t('Home')}</span>
         </Link>
       </li>
     </ol>
@@ -222,6 +229,8 @@ function AppBreadcrumb({ pathSegments }: { pathSegments: string[] }) {
 }
 
 function AppLayoutSwitch({ layout, setLayout }: { layout: LayoutName; setLayout: (layout: LayoutName) => void }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-shrink-0 overflow-hidden rounded-sm border border-gray-900/10 bg-white text-sm text-gray-600 dark:border-gray-500/30 dark:bg-gray-900 dark:text-gray-300">
       {layoutOptions.map(option => (
@@ -230,7 +239,7 @@ function AppLayoutSwitch({ layout, setLayout }: { layout: LayoutName; setLayout:
           className={`flex h-8 w-9 items-center justify-center ${
             layout === option.name ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400' : ''
           }`}
-          title={option.name}
+          title={t(option.name)}
           onClick={() => setLayout(option.name)}
         >
           <FontAwesomeIcon icon={option.icon} className="h-3 w-3" />
@@ -241,6 +250,7 @@ function AppLayoutSwitch({ layout, setLayout }: { layout: LayoutName; setLayout:
 }
 
 function AppAuth({ path }: { path: string }) {
+  const { t } = useTranslation()
   const authTokenPath = matchProtectedRoute(path)
   const [token, setToken] = useState('')
 
@@ -252,9 +262,10 @@ function AppAuth({ path }: { path: string }) {
   return (
     <PreviewContainer>
       <div className="mx-auto flex max-w-sm flex-col space-y-4 md:my-10">
-        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Enter Password</div>
+        <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('Enter Password')}</div>
         <p className="text-sm font-medium text-gray-500">
-          This route is password protected. If you know the password, please enter it below.
+          {t('This route (the folder itself and the files inside) is password protected. ') +
+            t('If you know the password, please enter it below.')}
         </p>
         {authTokenPath && <div className="truncate font-mono text-xs text-gray-500">{authTokenPath}</div>}
         <div className="flex items-center space-x-2">
@@ -281,6 +292,7 @@ function AppAuth({ path }: { path: string }) {
 }
 
 function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: string; layout: LayoutName }) {
+  const { t } = useTranslation()
   const href = itemPath(path, child.name)
   const icon = iconForItem(child)
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
@@ -337,7 +349,7 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
         <a
           className="col-span-2 hidden px-3 py-2.5 text-gray-500 hover:text-gray-900 md:block dark:hover:text-white"
           href={`/api/raw/?path=${encodeURIComponent(href)}`}
-          title="Download"
+          title={t('Download')}
         >
           <FontAwesomeIcon icon={faDownload} />
         </a>
@@ -355,6 +367,7 @@ function FolderView({
   layout: LayoutName
   path: string
 }) {
+  const { t } = useTranslation()
   const sortedChildren = useMemo(() => {
     return [...folderChildren]
       .filter(child => child.name !== '.password')
@@ -368,7 +381,7 @@ function FolderView({
   return (
     <div className="rounded-sm bg-white shadow-sm dark:bg-gray-900 dark:text-gray-100">
       <div className="border-b border-gray-900/10 px-3 py-2 text-xs font-bold tracking-widest text-gray-600 uppercase dark:border-gray-500/30 dark:text-gray-400">
-        {sortedChildren.length} item(s)
+        {t('{{count}} item(s)', { count: sortedChildren.length })}
       </div>
       {layout === 'Grid' ? (
         <div className="grid grid-cols-2 gap-3 p-3 md:grid-cols-4">
@@ -409,6 +422,7 @@ function AppDriveBrowser({
   path: string
 }) {
   const router = useRouter()
+  const { t } = useTranslation()
   const [pages, setPages] = useState<OdAPIResponse[]>(() => (initialResponse ? [initialResponse] : []))
   const [error, setError] = useState<AppDriveInitialError | undefined>(initialError)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -470,7 +484,7 @@ function AppDriveBrowser({
   if (pages.length === 0) {
     return (
       <PreviewContainer>
-        <Loading loadingText="Loading ..." />
+        <Loading loadingText={t('Loading ...')} />
       </PreviewContainer>
     )
   }
@@ -480,7 +494,7 @@ function AppDriveBrowser({
   if (!firstResponse) {
     return (
       <PreviewContainer>
-        <FourOhFour errorMsg={`Cannot preview ${path}`} />
+        <FourOhFour errorMsg={t('Cannot preview {{path}}', { path })} />
       </PreviewContainer>
     )
   }
@@ -502,7 +516,7 @@ function AppDriveBrowser({
               onClick={loadMore}
               disabled={loadingMore || !next}
             >
-              {loadingMore ? 'Loading ...' : next ? 'Load more' : 'No more files'}
+              {loadingMore ? t('Loading ...') : next ? t('Load more') : t('No more files')}
               {!loadingMore && next && <FontAwesomeIcon icon={faChevronCircleDown} />}
             </button>
           </div>
@@ -517,7 +531,7 @@ function AppDriveBrowser({
 
   return (
     <PreviewContainer>
-      <FourOhFour errorMsg={`Cannot preview ${path}`} />
+      <FourOhFour errorMsg={t('Cannot preview {{path}}', { path })} />
     </PreviewContainer>
   )
 }

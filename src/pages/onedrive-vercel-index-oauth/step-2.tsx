@@ -1,16 +1,16 @@
-import Head from 'next/head'
+﻿import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation, Trans } from 'next-i18next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation, Trans } from '../../features/i18n/client'
 
 import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { LoadingIcon } from '../../components/Loading'
 import { extractAuthCodeFromRedirected, generateAuthorisationUrl } from '../../utils/oAuthHandler'
+import { localeCookieName, resolveLocale } from '../../features/i18n/settings'
 
 export default function OAuthStep2() {
   const router = useRouter()
@@ -65,7 +65,7 @@ export default function OAuthStep2() {
               <div className="absolute top-0 right-0 p-1 opacity-60">
                 <FontAwesomeIcon icon="external-link-alt" />
               </div>
-              <pre className="overflow-x-auto whitespace-pre-wrap p-2">
+              <pre className="overflow-x-auto p-2 whitespace-pre-wrap">
                 <code>{oAuthUrl}</code>
               </pre>
             </div>
@@ -81,12 +81,12 @@ export default function OAuthStep2() {
               </Trans>
             </p>
 
-            <div className="my-4 mx-auto w-2/3 overflow-hidden rounded">
+            <div className="mx-auto my-4 w-2/3 overflow-hidden rounded">
               <Image src="/images/step-2-screenshot.png" width={1466} height={607} alt="step 2 screenshot" />
             </div>
 
             <input
-              className={`my-2 w-full flex-1 rounded border bg-gray-50 p-2 font-mono text-sm font-medium focus:outline-none focus:ring dark:bg-gray-800 dark:text-white ${
+              className={`my-2 w-full flex-1 rounded border bg-gray-50 p-2 font-mono text-sm font-medium focus:ring focus:outline-none dark:bg-gray-800 dark:text-white ${
                 authCode
                   ? 'border-green-500/50 focus:ring-green-500/30 dark:focus:ring-green-500/40'
                   : 'border-red-500/50 focus:ring-red-500/30 dark:focus:ring-red-500/40'
@@ -102,7 +102,7 @@ export default function OAuthStep2() {
             />
 
             <p className="py-1">{t('The authorisation code extracted is:')}</p>
-            <p className="my-2 overflow-hidden truncate rounded border border-gray-400/20 bg-gray-50 p-2 font-mono text-sm opacity-80 dark:bg-gray-800">
+            <p className="my-2 truncate overflow-hidden rounded border border-gray-400/20 bg-gray-50 p-2 font-mono text-sm opacity-80 dark:bg-gray-800">
               {authCode ?? <span className="animate-pulse">{t('Waiting for code...')}</span>}
             </p>
 
@@ -112,7 +112,7 @@ export default function OAuthStep2() {
                 : t('❌ No valid code extracted.')}
             </p>
 
-            <div className="mb-2 mt-6 text-right">
+            <div className="mt-6 mb-2 text-right">
               <button
                 className="rounded-lg bg-gradient-to-br from-green-500 to-cyan-400 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-green-200 disabled:cursor-not-allowed disabled:grayscale dark:focus:ring-green-800"
                 disabled={authCode === ''}
@@ -141,10 +141,14 @@ export default function OAuthStep2() {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ locale, req }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
+      locale: resolveLocale({
+        acceptLanguage: req.headers['accept-language'],
+        cookieLocale: req.cookies?.[localeCookieName],
+        pathLocale: locale,
+      }),
     },
   }
 }

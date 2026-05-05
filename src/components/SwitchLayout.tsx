@@ -1,8 +1,8 @@
-import { Fragment } from 'react'
+﻿import { Fragment } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Listbox, Transition } from '@headlessui/react'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from '../features/i18n/client'
 
 import useLocalStorage from '../utils/useLocalStorage'
 
@@ -17,7 +17,7 @@ const SwitchLayout = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="relative w-24 flex-shrink-0 text-sm text-gray-600 dark:text-gray-300 md:w-28">
+    <div className="relative w-24 flex-shrink-0 text-sm text-gray-600 md:w-28 dark:text-gray-300">
       <Listbox value={preferredLayout} onChange={setPreferredLayout}>
         <Listbox.Button className="relative w-full cursor-pointer rounded pl-4">
           <span className="pointer-events-none flex items-center">
@@ -51,7 +51,7 @@ const SwitchLayout = () => {
                 className={`${
                   layout.name === preferredLayout.name &&
                   'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400'
-                } relative flex cursor-pointer select-none items-center py-1.5 pl-3 text-gray-600 hover:opacity-80 dark:text-gray-300`}
+                } relative flex cursor-pointer items-center py-1.5 pl-3 text-gray-600 select-none hover:opacity-80 dark:text-gray-300`}
                 value={layout}
               >
                 <FontAwesomeIcon className="mr-2 h-3 w-3" icon={layout.icon} />

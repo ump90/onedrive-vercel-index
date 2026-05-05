@@ -23,6 +23,7 @@ import Loading, { LoadingIcon } from '../../components/Loading'
 import { DownloadBtnContainer, PreviewContainer } from '../../components/previews/Containers'
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
 import { getStoredToken } from '../auth/protected-route'
+import { useTranslation } from '../i18n/client'
 import { getExtension, getLanguageByFileName, getPreviewType, preview } from './preview-type'
 
 type AppFilePreviewProps = {
@@ -160,6 +161,7 @@ function PreviewActionButton({
 }
 
 function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
+  const { t } = useTranslation()
   const origin = useBrowserOrigin()
   const [copied, setCopied] = useState(false)
 
@@ -177,41 +179,44 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
         <a
           className="dark:hover:bg-gray-850 flex items-center gap-2 rounded-sm border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-blue-500 dark:bg-gray-800 dark:text-blue-300"
           href={rawUrl}
-          title={`Download ${path}`}
+          title={`${t('Download')} ${path}`}
         >
           <FontAwesomeIcon icon={faDownload} />
-          <span>Download</span>
+          <span>{t('Download')}</span>
         </a>
-        <PreviewActionButton title="Copy direct link" onClick={copyRawLink}>
+        <PreviewActionButton title={t('Copy direct link')} onClick={copyRawLink}>
           <FontAwesomeIcon icon={copied ? faCheck : faCopy} />
-          <span>{copied ? 'Copied' : 'Copy link'}</span>
+          <span>{copied ? t('Copied') : t('Copy direct link')}</span>
         </PreviewActionButton>
         <a
           className="dark:hover:bg-gray-850 flex items-center gap-2 rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           href={rawUrl}
           target="_blank"
           rel="noreferrer"
-          title="Open raw file"
+          title={t('Open raw file')}
         >
           <FontAwesomeIcon icon={faExternalLinkAlt} />
-          <span>Open raw</span>
+          <span>{t('Open raw')}</span>
         </a>
       </div>
     </DownloadBtnContainer>
   )
 }
 
-function renderContentState(state: FileTextState): ReactNode | null {
+function renderContentState(
+  state: FileTextState,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): ReactNode | null {
   if (state.error) {
     return <FourOhFour errorMsg={state.error} />
   }
 
   if (state.loading) {
-    return <Loading loadingText="Loading file content ..." />
+    return <Loading loadingText={t('Loading file content...')} />
   }
 
   if (!state.content) {
-    return <FourOhFour errorMsg="File is empty." />
+    return <FourOhFour errorMsg={t('File is empty.')} />
   }
 
   return null
@@ -236,8 +241,9 @@ function ImagePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
 }
 
 function TextPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const textState = useFileText(path)
-  const stateContent = renderContentState(textState)
+  const stateContent = renderContentState(textState, t)
 
   return (
     <>
@@ -254,9 +260,10 @@ function TextPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: str
 }
 
 function CodePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const textState = useFileText(path)
   const prefersDark = usePrefersDark()
-  const stateContent = renderContentState(textState)
+  const stateContent = renderContentState(textState, t)
 
   return (
     <>
@@ -277,9 +284,10 @@ function CodePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: str
 }
 
 function MarkdownPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const textState = useFileText(path)
   const parentPath = path.substring(0, path.lastIndexOf('/')) || '/'
-  const stateContent = renderContentState(textState)
+  const stateContent = renderContentState(textState, t)
   const token = getStoredToken(path)
 
   const components = useMemo<Components>(
@@ -350,6 +358,7 @@ function PdfPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) 
 }
 
 function AudioPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
   const token = getStoredToken(path)
   const thumbnailUrl = urlWithPath('/api/thumbnail/', path, { token, size: 'medium' })
@@ -374,7 +383,7 @@ function AudioPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
           <div className="min-w-0 flex-1">
             <div className="truncate font-medium">{file.name}</div>
             <div className="mt-1 text-sm text-gray-500">
-              Last modified: {formatModifiedDateTime(file.lastModifiedDateTime)}
+              {t('Last modified:')} {formatModifiedDateTime(file.lastModifiedDateTime)}
             </div>
             <audio className="mt-5 w-full" src={rawUrl} controls preload="metadata" />
           </div>
@@ -462,6 +471,7 @@ function VideoPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
 }
 
 function OfficeFallbackPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const origin = useBrowserOrigin()
   const absoluteRawUrl = origin ? new URL(rawUrl, origin).toString() : ''
   const viewerUrl = absoluteRawUrl
@@ -475,7 +485,7 @@ function OfficeFallbackPreview({ file, path, rawUrl }: AppFilePreviewProps & { r
           <div>
             <div className="font-medium">{file.name}</div>
             <div className="mt-1 text-sm text-gray-500">
-              Office preview uses the public Microsoft viewer when the raw link is reachable from the internet.
+              {t('Office preview uses the public Microsoft viewer when the raw link is reachable from the internet.')}
             </div>
           </div>
           {viewerUrl ? (
@@ -497,6 +507,7 @@ function OfficeFallbackPreview({ file, path, rawUrl }: AppFilePreviewProps & { r
 }
 
 function DefaultDownloadPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
+  const { t } = useTranslation()
   const icon = useMemo(() => {
     const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
@@ -524,16 +535,18 @@ function DefaultDownloadPreview({ file, path, rawUrl }: AppFilePreviewProps & { 
           </div>
           <div className="mt-5 min-w-0 flex-1 space-y-4 md:mt-0">
             <div>
-              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">Last modified</div>
+              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">
+                {t('Last modified')}
+              </div>
               <div>{formatModifiedDateTime(file.lastModifiedDateTime)}</div>
             </div>
             <div>
-              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">File size</div>
+              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">{t('File size')}</div>
               <div>{humanFileSize(file.size)}</div>
             </div>
             <div>
-              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">MIME type</div>
-              <div>{file.file?.mimeType ?? 'Unavailable'}</div>
+              <div className="py-1 text-xs font-medium tracking-widest text-gray-500 uppercase">{t('MIME type')}</div>
+              <div>{file.file?.mimeType ?? t('Unavailable')}</div>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
-import type { OdFileObject } from '../../types'
+﻿import type { OdFileObject } from '../../types'
 
 import { FC, useEffect, useRef, useState } from 'react'
 import { ReactReader } from 'react-reader'
 import { useRouter } from 'next/router'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from '../../features/i18n/client'
 
 import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
@@ -44,7 +44,7 @@ const EPUBPreview: FC<{ file: OdFileObject }> = ({ file }) => {
   return (
     <div>
       <div
-        className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white dark:bg-gray-900 md:p-3"
+        className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white md:p-3 dark:bg-gray-900"
         style={{ maxHeight: '90vh' }}
       >
         <div className="no-scrollbar w-full flex-1 overflow-scroll" ref={epubContainer} style={{ minHeight: '70vh' }}>

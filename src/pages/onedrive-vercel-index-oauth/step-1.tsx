@@ -1,14 +1,14 @@
-import Head from 'next/head'
+﻿import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useTranslation, Trans } from 'next-i18next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation, Trans } from '../../features/i18n/client'
 
 import siteConfig from '../../../config/site.config'
 import apiConfig from '../../../config/api.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { localeCookieName, resolveLocale } from '../../features/i18n/settings'
 
 export default function OAuthStep1() {
   const router = useRouter()
@@ -69,50 +69,50 @@ export default function OAuthStep1() {
               <table className="min-w-full table-auto">
                 <tbody>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       CLIENT_ID
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.clientId}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       CLIENT_SECRET*
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.obfuscatedClientSecret}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       REDIRECT_URI
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.redirectUri}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       Auth API URL
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.authApi}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       Drive API URL
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.driveApi}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td className="bg-gray-50 px-3 py-1 text-left text-xs font-medium tracking-wider text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
                       API Scope
                     </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <td className="px-3 py-1 whitespace-nowrap text-gray-500 dark:text-gray-400">
                       <code className="font-mono text-sm">{apiConfig.scope}</code>
                     </td>
                   </tr>
@@ -128,7 +128,7 @@ export default function OAuthStep1() {
               </Trans>
             </p>
 
-            <div className="mb-2 mt-6 text-right">
+            <div className="mt-6 mb-2 text-right">
               <button
                 className="rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-cyan-300 dark:focus:ring-cyan-800"
                 onClick={() => {
@@ -147,10 +147,14 @@ export default function OAuthStep1() {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ locale, req }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common'])),
+      locale: resolveLocale({
+        acceptLanguage: req.headers['accept-language'],
+        cookieLocale: req.cookies?.[localeCookieName],
+        pathLocale: locale,
+      }),
     },
   }
 }

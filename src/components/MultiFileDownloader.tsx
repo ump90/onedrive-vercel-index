@@ -1,7 +1,7 @@
-import { NextRouter } from 'next/router'
+﻿import { NextRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import JSZip from 'jszip'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from '../features/i18n/client'
 
 import { fetcher } from '../utils/fetchWithSWR'
 import { getStoredToken } from '../utils/protectedRouteHandler'
@@ -27,7 +27,7 @@ export function DownloadingToast({ router, progress }: { router: NextRouter; pro
         </div>
       </div>
       <button
-        className="rounded bg-red-500 p-2 text-white hover:bg-red-400 focus:outline-none focus:ring focus:ring-red-300"
+        className="rounded bg-red-500 p-2 text-white hover:bg-red-400 focus:ring focus:ring-red-300 focus:outline-none"
         onClick={() => router.reload()}
       >
         {t('Cancel')}
@@ -78,7 +78,7 @@ export async function downloadMultipleFiles({
       name,
       fetch(url).then(r => {
         return r.blob()
-      })
+      }),
     )
   })
 
@@ -132,7 +132,7 @@ export async function downloadTreelikeMultipleFiles({
       .reverse()
       .findIndex(
         ({ path: parent }) =>
-          path.substring(0, parent.length) === parent && path.substring(parent.length + 1).indexOf('/') === -1
+          path.substring(0, parent.length) === parent && path.substring(parent.length + 1).indexOf('/') === -1,
       )
     if (i === -1) {
       throw new Error('File array does not satisfy requirement')
@@ -145,7 +145,7 @@ export async function downloadTreelikeMultipleFiles({
     } else {
       dir.file(
         name,
-        fetch(url!).then(r => r.blob())
+        fetch(url!).then(r => r.blob()),
       )
     }
   }

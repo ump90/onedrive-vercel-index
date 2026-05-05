@@ -1,11 +1,11 @@
-import { FC, CSSProperties } from 'react'
+﻿import { FC, CSSProperties } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import rehypeRaw from 'rehype-raw'
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from '../../features/i18n/client'
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrowNight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 
@@ -43,14 +43,7 @@ const MarkdownPreview: FC<{
 
       return (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          alt={alt}
-          src={resolvedSrc}
-          title={title}
-          width={width}
-          height={height}
-          style={style}
-        />
+        <img alt={alt} src={resolvedSrc} title={title} width={width} height={height} style={style} />
       )
     },
     // code: to render code blocks with react-syntax-highlighter
@@ -66,11 +59,7 @@ const MarkdownPreview: FC<{
       }
 
       return (
-        <SyntaxHighlighter
-          language={match[1]}
-          style={tomorrowNight as { [key: string]: CSSProperties }}
-          PreTag="div"
-        >
+        <SyntaxHighlighter language={match[1]} style={tomorrowNight as { [key: string]: CSSProperties }} PreTag="div">
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       )

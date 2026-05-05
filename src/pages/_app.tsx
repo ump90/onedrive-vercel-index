@@ -1,8 +1,8 @@
-import '@fortawesome/fontawesome-svg-core/styles.css'
+﻿import '@fortawesome/fontawesome-svg-core/styles.css'
 
 import '../styles/globals.css'
 import '../styles/markdown-github.css'
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/react'
 
 // Require had to be used to prevent SSR failure in Next.js
 // Related discussion: https://github.com/FortAwesome/Font-Awesome/issues/19348
@@ -66,7 +66,8 @@ import * as Icons from '@fortawesome/free-brands-svg-icons'
 
 import type { AppProps } from 'next/app'
 import NextNProgress from 'nextjs-progressbar'
-import { appWithTranslation } from 'next-i18next'
+import { I18nProvider } from '../features/i18n/client'
+import { defaultLocale } from '../features/i18n/settings'
 
 // import all brand icons with tree-shaking so all icons can be referenced in the app
 const iconList = Object.keys(Icons)
@@ -123,16 +124,16 @@ library.add(
   faSort,
   faSortUp,
   faSortDown,
-  ...iconList
+  ...iconList,
 )
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <I18nProvider locale={typeof pageProps.locale === 'string' ? pageProps.locale : defaultLocale}>
       <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
       <Analytics />
       <Component {...pageProps} />
-    </>
+    </I18nProvider>
   )
 }
-export default appWithTranslation(MyApp)
+export default MyApp

@@ -9,17 +9,21 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/react'
 
 import siteConfig from '../../config/site.config'
+import { I18nProvider } from '../features/i18n/client'
+import { getRequestLocale } from '../features/i18n/server'
 
 export const metadata: Metadata = {
   title: siteConfig.title,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getRequestLocale()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <Analytics />
-        {children}
+        <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
   )

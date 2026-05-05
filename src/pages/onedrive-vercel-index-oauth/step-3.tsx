@@ -1,10 +1,9 @@
-import Head from 'next/head'
+﻿import Head from 'next/head'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useTranslation, Trans } from 'next-i18next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
+import { useTranslation, Trans } from '../../features/i18n/client'
 
 import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
@@ -12,6 +11,7 @@ import Footer from '../../components/Footer'
 
 import { getAuthPersonInfo, requestTokenWithAuthCode, sendTokenToServer } from '../../utils/oAuthHandler'
 import { LoadingIcon } from '../../components/Loading'
+import { localeCookieName, resolveLocale } from '../../features/i18n/settings'
 
 export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri }) {
   const router = useRouter()
@@ -32,7 +32,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
   const [buttonContent, setButtonContent] = useState(
     <div>
       <span>{t('Store tokens')}</span> <FontAwesomeIcon icon="key" />
-    </div>
+    </div>,
   )
   const [buttonError, setButtonError] = useState(false)
 
@@ -41,7 +41,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
     setButtonContent(
       <div>
         <span>{t('Storing tokens')}</span> <LoadingIcon className="ml-1 inline h-4 w-4 animate-spin" />
-      </div>
+      </div>,
     )
 
     // verify identity of the authenticated user with the Microsoft Graph API
@@ -51,7 +51,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
       setButtonContent(
         <div>
           <span>{t('Error validating identify, restart')}</span> <FontAwesomeIcon icon="exclamation-circle" />
-        </div>
+        </div>,
       )
       return
     }
@@ -60,7 +60,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
       setButtonContent(
         <div>
           <span>{t('Do not pretend to be the site owner')}</span> <FontAwesomeIcon icon="exclamation-circle" />
-        </div>
+        </div>,
       )
       return
     }
@@ -71,7 +71,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         setButtonContent(
           <div>
             <span>{t('Stored! Going home...')}</span> <FontAwesomeIcon icon="check" />
-          </div>
+          </div>,
         )
         setTimeout(() => {
           router.push('/')
@@ -82,7 +82,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         setButtonContent(
           <div>
             <span>{t('Error storing the token')}</span> <FontAwesomeIcon icon="exclamation-circle" />
-          </div>
+          </div>,
         )
       })
   }
@@ -123,7 +123,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
                     })}
                   </span>
                 </p>
-                <p className="my-2 whitespace-pre-line rounded border border-gray-400/20 bg-gray-50 p-2 font-mono text-sm opacity-80 dark:bg-gray-800">
+                <p className="my-2 rounded border border-gray-400/20 bg-gray-50 p-2 font-mono text-sm whitespace-pre-line opacity-80 dark:bg-gray-800">
                   {
                     // t('Where is the auth code? Did you follow step 2 you silly donut?')
                     t(description)
@@ -146,7 +146,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
                     </Trans>
                   </p>
                 )}
-                <div className="mb-2 mt-6 text-right">
+                <div className="mt-6 mb-2 text-right">
                   <button
                     className="rounded-lg bg-gradient-to-br from-red-500 to-orange-400 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-red-200 disabled:cursor-not-allowed disabled:grayscale dark:focus:ring-red-800"
                     onClick={() => {
@@ -193,14 +193,14 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
                     {
                       minutes: Math.floor(expiryTimeLeft / 60),
                       seconds: expiryTimeLeft - Math.floor(expiryTimeLeft / 60) * 60,
-                    }
+                    },
                   ) +
                     t(
-                      "Don't worry, after storing them, onedrive-vercel-index will take care of token refreshes and updates after your site goes live."
+                      "Don't worry, after storing them, onedrive-vercel-index will take care of token refreshes and updates after your site goes live.",
                     )}
                 </p>
 
-                <div className="mb-2 mt-6 text-right">
+                <div className="mt-6 mb-2 text-right">
                   <button
                     className={`rounded-lg bg-gradient-to-br px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 ${
                       buttonError
@@ -223,8 +223,13 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
   )
 }
 
-export async function getServerSideProps({ query, locale }) {
+export async function getServerSideProps({ query, locale, req }) {
   const { authCode } = query
+  const resolvedLocale = resolveLocale({
+    acceptLanguage: req.headers['accept-language'],
+    cookieLocale: req.cookies?.[localeCookieName],
+    pathLocale: locale,
+  })
 
   // Return if no auth code is present
   if (!authCode) {
@@ -232,7 +237,7 @@ export async function getServerSideProps({ query, locale }) {
       props: {
         error: 'No auth code present',
         description: 'Where is the auth code? Did you follow step 2 you silly donut?',
-        ...(await serverSideTranslations(locale, ['common'])),
+        locale: resolvedLocale,
       },
     }
   }
@@ -246,7 +251,7 @@ export async function getServerSideProps({ query, locale }) {
         error: response.error,
         description: response.errorDescription,
         errorUri: response.errorUri,
-        ...(await serverSideTranslations(locale, ['common'])),
+        locale: resolvedLocale,
       },
     }
   }
@@ -259,7 +264,7 @@ export async function getServerSideProps({ query, locale }) {
       expiryTime,
       accessToken,
       refreshToken,
-      ...(await serverSideTranslations(locale, ['common'])),
+      locale: resolvedLocale,
     },
   }
 }

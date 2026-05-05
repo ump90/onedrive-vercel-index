@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { Fragment, useEffect, useState } from 'react'
 
 import siteConfig from '../../../config/site.config'
+import { useTranslation } from '../i18n/client'
 
 type ResolvedSearchItem = OdSearchResult[number] & {
   path: string
@@ -131,14 +132,14 @@ function SearchResultItem({ item, closeSearchBox }: { item: ResolvedSearchItem; 
   return (
     <Link
       href={item.path || '#'}
-      className={`flex items-center space-x-4 border-b border-gray-400/30 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-850 ${
+      className={`dark:hover:bg-gray-850 flex items-center space-x-4 border-b border-gray-400/30 px-4 py-2 hover:bg-gray-50 ${
         disabled ? 'pointer-events-none cursor-not-allowed opacity-60' : 'cursor-pointer'
       }`}
       onClick={closeSearchBox}
     >
       <FontAwesomeIcon icon={item.folder ? faFolder : faFile} className="h-4 w-4 flex-shrink-0" />
       <div className="min-w-0">
-        <div className="truncate text-sm font-medium leading-7">{item.name}</div>
+        <div className="truncate text-sm leading-7 font-medium">{item.name}</div>
         <div className="truncate font-mono text-xs opacity-60">{item.description}</div>
       </div>
     </Link>
@@ -154,6 +155,7 @@ export default function AppSearchModal({
 }) {
   const [query, setQuery] = useState('')
   const { error, loading, results } = useDriveSearch(query)
+  const { t } = useTranslation()
 
   const closeSearchBox = () => {
     setSearchOpen(false)
@@ -194,7 +196,7 @@ export default function AppSearchModal({
                 <input
                   type="text"
                   className="w-full bg-transparent focus:outline-none focus-visible:outline-none"
-                  placeholder="Search ..."
+                  placeholder={t('Search ...')}
                   value={query}
                   autoFocus
                   onChange={event => setQuery(event.target.value)}
@@ -204,10 +206,14 @@ export default function AppSearchModal({
                 className="max-h-[80vh] overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900 dark:text-white"
                 onClick={closeSearchBox}
               >
-                {loading && <div className="px-4 py-12 text-center text-sm font-medium">Loading ...</div>}
-                {error && <div className="px-4 py-12 text-center text-sm font-medium">Error: {error}</div>}
+                {loading && <div className="px-4 py-12 text-center text-sm font-medium">{t('Loading ...')}</div>}
+                {error && (
+                  <div className="px-4 py-12 text-center text-sm font-medium">
+                    {t('Error: {{message}}', { message: error })}
+                  </div>
+                )}
                 {!loading && !error && query.trim() && results.length === 0 && (
-                  <div className="px-4 py-12 text-center text-sm font-medium">Nothing here.</div>
+                  <div className="px-4 py-12 text-center text-sm font-medium">{t('Nothing here.')}</div>
                 )}
                 {!loading &&
                   !error &&

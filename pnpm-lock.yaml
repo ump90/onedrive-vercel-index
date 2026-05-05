@@ -68,9 +68,6 @@ importers:
       next:
         specifier: ^16.2.4
         version: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      next-i18next:
-        specifier: ^13.0.3
-        version: 13.3.0(@types/react@19.2.14)(i18next@22.5.1)(next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-i18next@12.3.1(i18next@22.5.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)
       nextjs-progressbar:
         specifier: ^0.0.16
         version: 0.0.16(next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)
@@ -89,9 +86,6 @@ importers:
       react-audio-player:
         specifier: ^0.17.0
         version: 0.17.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      react-cookie:
-        specifier: ^4.1.1
-        version: 4.1.1(@types/react@19.2.14)(react@19.2.5)
       react-copy-to-clipboard:
         specifier: ^5.0.3
         version: 5.1.1(react@19.2.5)
@@ -1039,9 +1033,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/cookie@0.3.3':
-    resolution: {integrity: sha512-LKVP3cgXBT9RYj+t+9FDKwS5tdI+rPBXaNSkma7hvqy35lc7mAokC2zsqWJH0LaqIt3B962nuYI77hsJoT1gow==}
-
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
 
@@ -1068,11 +1059,6 @@ packages:
 
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
-
-  '@types/hoist-non-react-statics@3.3.7':
-    resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
-    peerDependencies:
-      '@types/react': '*'
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -1672,10 +1658,6 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
-
-  cookie@0.4.2:
-    resolution: {integrity: sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==}
-    engines: {node: '>= 0.6'}
 
   copy-to-clipboard@3.3.3:
     resolution: {integrity: sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==}
@@ -2367,9 +2349,6 @@ packages:
   highlightjs-vue@1.0.0:
     resolution: {integrity: sha512-PDEfEF102G23vHmPhLyPboFCD+BkMGu+GuJe2d9/eH4FsCwvgBpnc9n0pGE+ffKdph38s6foEZiEjdgHdzp+IA==}
 
-  hoist-non-react-statics@3.3.2:
-    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
-
   html-parse-stringify@3.0.1:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
 
@@ -2381,9 +2360,6 @@ packages:
 
   htmlparser2@10.1.0:
     resolution: {integrity: sha512-VTZkM9GWRAtEpveh7MSF6SjjrpNVNNVJfFup7xTY3UpFtm67foy9HDVXneLtFVt4pMz5kZtgNcvCniNFb1hlEQ==}
-
-  i18next-fs-backend@2.6.5:
-    resolution: {integrity: sha512-+7HBrlaj3UFnNC9HqiXaIlNkwNINYkgQ2PS4h7qW/WGHC9/+OU9Xi0/tdvjjXATw3YCcpmNV7S3zDD9e10pTWg==}
 
   i18next-parser@7.9.0:
     resolution: {integrity: sha512-yrPJhWGsDBx404T4KLMOTkTgAAEuHvjbxee3HnlqFHALWy/3BOY7or69CxsJOomN3wdrwgg8kWtfIUWR1BZ1nw==}
@@ -3030,15 +3006,6 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  next-i18next@13.3.0:
-    resolution: {integrity: sha512-X4kgi51BCOoGdKbv87eZ8OU7ICQDg5IP+T5fNjqDY3os9ea0OKTY4YpAiVFiwcI9XimcUmSPbKO4a9jFUyYSgg==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      i18next: ^22.0.6
-      next: '>= 12.0.0'
-      react: '>= 17.0.2'
-      react-i18next: ^12.2.0
-
   next-tick@1.1.0:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
 
@@ -3390,11 +3357,6 @@ packages:
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
-
-  react-cookie@4.1.1:
-    resolution: {integrity: sha512-ffn7Y7G4bXiFbnE+dKhHhbP+b8I34mH9jqnm8Llhj89zF4nPxPutxHT1suUqMeCEhLDBI7InYwf1tpaSoK5w8A==}
-    peerDependencies:
-      react: '>= 16.3.0'
 
   react-copy-to-clipboard@5.1.1:
     resolution: {integrity: sha512-s+HrzLyJBxrpGTYXF15dTgMjAJpEPZT/Yp6NytAtZMRngejxt6Pt5WrfFxLAcsqUDU6sY1Jz6tyHwIicE1U2Xg==}
@@ -3953,9 +3915,6 @@ packages:
 
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
-
-  universal-cookie@4.0.4:
-    resolution: {integrity: sha512-lbRVHoOMtItjWbM7TwDLdl8wug7izB0tq3/YVKhT/ahB4VDvWMyvnADfnJI8y6fSvsjh51Ix7lTGC6Tn4rMPhw==}
 
   universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
@@ -4890,8 +4849,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/cookie@0.3.3': {}
-
   '@types/cors@2.8.19':
     dependencies:
       '@types/node': 24.12.2
@@ -4919,11 +4876,6 @@ snapshots:
   '@types/hast@3.0.4':
     dependencies:
       '@types/unist': 3.0.3
-
-  '@types/hoist-non-react-statics@3.3.7(@types/react@19.2.14)':
-    dependencies:
-      '@types/react': 19.2.14
-      hoist-non-react-statics: 3.3.2
 
   '@types/json-schema@7.0.15': {}
 
@@ -5503,8 +5455,6 @@ snapshots:
   convert-source-map@1.9.0: {}
 
   convert-source-map@2.0.0: {}
-
-  cookie@0.4.2: {}
 
   copy-to-clipboard@3.3.3:
     dependencies:
@@ -6479,10 +6429,6 @@ snapshots:
 
   highlightjs-vue@1.0.0: {}
 
-  hoist-non-react-statics@3.3.2:
-    dependencies:
-      react-is: 16.13.1
-
   html-parse-stringify@3.0.1:
     dependencies:
       void-elements: 3.1.0
@@ -6497,8 +6443,6 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       entities: 7.0.1
-
-  i18next-fs-backend@2.6.5: {}
 
   i18next-parser@7.9.0:
     dependencies:
@@ -7361,20 +7305,6 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-i18next@13.3.0(@types/react@19.2.14)(i18next@22.5.1)(next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-i18next@12.3.1(i18next@22.5.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5):
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.14)
-      core-js: 3.49.0
-      hoist-non-react-statics: 3.3.2
-      i18next: 22.5.1
-      i18next-fs-backend: 2.6.5
-      next: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      react: 19.2.5
-      react-i18next: 12.3.1(i18next@22.5.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-    transitivePeerDependencies:
-      - '@types/react'
-
   next-tick@1.1.0: {}
 
   next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
@@ -7692,15 +7622,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
-
-  react-cookie@4.1.1(@types/react@19.2.14)(react@19.2.5):
-    dependencies:
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.14)
-      hoist-non-react-statics: 3.3.2
-      react: 19.2.5
-      universal-cookie: 4.0.4
-    transitivePeerDependencies:
-      - '@types/react'
 
   react-copy-to-clipboard@5.1.1(react@19.2.5):
     dependencies:
@@ -8445,11 +8366,6 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
-
-  universal-cookie@4.0.4:
-    dependencies:
-      '@types/cookie': 0.3.3
-      cookie: 0.4.2
 
   universalify@0.1.2: {}
 
