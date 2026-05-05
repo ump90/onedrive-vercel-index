@@ -1,6 +1,6 @@
 'use client'
 
-import type { OdAPIResponse, OdFileNavigationItem, OdFileObject, OdFolderChildren, OdFolderObject } from '../../types'
+import type { OdAPIResponse, OdFileObject, OdFolderChildren, OdFolderObject } from '../../types'
 
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
@@ -388,48 +388,109 @@ function FolderView({
   )
 }
 
-function FileNavigationLink({ direction, item }: { direction: 'previous' | 'next'; item?: OdFileNavigationItem }) {
+function FloatingFileNavigation({
+  canGoPrevious,
+  canGoNext,
+  onPrevious,
+  onNext,
+}: {
+  canGoPrevious: boolean
+  canGoNext: boolean
+  onPrevious: () => void
+  onNext: () => void
+}) {
   const { t } = useTranslation()
-  const icon = direction === 'previous' ? faArrowLeft : faArrowRight
-  const label = direction === 'previous' ? t('Previous file') : t('Next file')
-  const content = (
-    <>
-      {direction === 'previous' && <FontAwesomeIcon icon={icon} />}
-      <span>{label}</span>
-      <span className="max-w-40 truncate font-normal text-gray-500 dark:text-gray-400">{item?.name ?? t('Unavailable')}</span>
-      {direction === 'next' && <FontAwesomeIcon icon={icon} />}
-    </>
-  )
-  const className = `flex min-w-0 items-center gap-2 rounded-sm border px-4 py-2 text-sm font-medium ${
-    item
-      ? 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-850'
-      : 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-500'
-  }`
-
-  if (!item) {
-    return <span className={className}>{content}</span>
-  }
+  const baseClassName =
+    'fixed top-1/2 z-40 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-900/10 bg-white/85 text-gray-800 shadow-lg transition hover:bg-white focus:ring-2 focus:ring-blue-300 focus:outline-hidden md:h-12 md:w-12 dark:border-gray-500/30 dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900 dark:focus:ring-blue-700'
+  const unavailableClassName = 'opacity-60'
 
   return (
-    <Link href={item.path} className={className} title={item.name}>
-      {content}
-    </Link>
+    <>
+      <button
+        type="button"
+        className={`${baseClassName} left-3 md:left-6 ${canGoPrevious ? '' : unavailableClassName}`}
+        aria-disabled={!canGoPrevious}
+        aria-label={t('Previous file')}
+        title={t('Previous file')}
+        onClick={onPrevious}
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        className={`${baseClassName} right-3 md:right-6 ${canGoNext ? '' : unavailableClassName}`}
+        aria-disabled={!canGoNext}
+        aria-label={t('Next file')}
+        title={t('Next file')}
+        onClick={onNext}
+      >
+        <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" />
+      </button>
+    </>
   )
 }
 
-function FileNavigationControls({ navigation }: { navigation?: OdAPIResponse['fileNavigation'] }) {
+function FileNavigationToast({ message }: { message: string }) {
+  if (!message) {
+    return null
+  }
+
   return (
-    <div className="mb-4 flex flex-col justify-between gap-2 sm:flex-row">
-      <FileNavigationLink direction="previous" item={navigation?.previous} />
-      <FileNavigationLink direction="next" item={navigation?.next} />
+    <div
+      className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-gray-900/90 px-4 py-2 text-sm font-medium text-white shadow-lg dark:bg-white/90 dark:text-gray-900"
+      role="status"
+      aria-live="polite"
+    >
+      {message}
     </div>
   )
 }
 
 function FileView({ file, fileNavigation, path }: { file: OdFileObject; fileNavigation?: OdAPIResponse['fileNavigation']; path: string }) {
+  const router = useRouter()
+  const { t } = useTranslation()
+  const [toastMessage, setToastMessage] = useState('')
+
+  useEffect(() => {
+    if (!toastMessage) {
+      return undefined
+    }
+
+    const timeout = window.setTimeout(() => setToastMessage(''), 1800)
+    return () => window.clearTimeout(timeout)
+  }, [toastMessage])
+
+  const showToast = (message: string) => {
+    setToastMessage(message)
+  }
+
+  const goToPreviousFile = () => {
+    if (!fileNavigation?.previous) {
+      showToast(t('Already the first file'))
+      return
+    }
+
+    router.push(fileNavigation.previous.path)
+  }
+
+  const goToNextFile = () => {
+    if (!fileNavigation?.next) {
+      showToast(t('Already the last file'))
+      return
+    }
+
+    router.push(fileNavigation.next.path)
+  }
+
   return (
     <>
-      <FileNavigationControls navigation={fileNavigation} />
+      <FloatingFileNavigation
+        canGoPrevious={Boolean(fileNavigation?.previous)}
+        canGoNext={Boolean(fileNavigation?.next)}
+        onPrevious={goToPreviousFile}
+        onNext={goToNextFile}
+      />
+      <FileNavigationToast message={toastMessage} />
       <AppFilePreview file={file} path={path} />
     </>
   )

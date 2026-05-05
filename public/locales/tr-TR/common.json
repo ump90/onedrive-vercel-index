@@ -76,6 +76,8 @@
   "MIME type": "Dosya Tipi",
   "Name": "Ad",
   "Next file": "Sonraki dosya",
+  "Already the first file": "Already the first file",
+  "Already the last file": "Already the last file",
   "No more files": "Başka Dosya Yok",
   "Nothing here.": "Burada Hiçbir Yok.",
   "OAuth Step 1 - {{title}}": "OAuth Adım 1 - {{title}}",

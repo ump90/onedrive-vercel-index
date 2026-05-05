@@ -74,6 +74,8 @@
   "MIME type": "MIME प्रकार",
   "Name": "नाम",
   "Next file": "अगली फ़ाइल",
+  "Already the first file": "Already the first file",
+  "Already the last file": "Already the last file",
   "No more files": "कोई और फाइल नहीं",
   "Nothing here.": "यहाँ कुछ नहीं।",
   "OAuth Step 1 - {{title}}": "OAuth कदम 1 - {{title}}",

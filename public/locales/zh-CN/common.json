@@ -77,6 +77,8 @@
   "MIME type": "MIME 类型",
   "Name": "文件名",
   "Next file": "下一个文件",
+  "Already the first file": "已经是第一个文件",
+  "Already the last file": "已经是最后一个文件",
   "No more files": "加载完毕",
   "Nothing here.": "无内容。",
   "OAuth Step 1 - {{title}}": "OAuth 第 1 步 - {{title}}",

@@ -78,6 +78,8 @@
   "MIME type": "MIME-Typ",
   "Name": "Name",
   "Next file": "Nächste Datei",
+  "Already the first file": "Already the first file",
+  "Already the last file": "Already the last file",
   "No more files": "Keine weiteren Dateien",
   "Nothing here.": "Nichts zu sehen hier.",
   "OAuth Step 1 - {{title}}": "OAuth Schritt 1 - {{title}}",

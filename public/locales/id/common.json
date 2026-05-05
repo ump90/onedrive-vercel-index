@@ -78,6 +78,8 @@
     "MIME type": "Tipe MIME",
     "Name": "Nama",
     "Next file": "Berkas berikutnya",
+    "Already the first file": "Already the first file",
+    "Already the last file": "Already the last file",
     "No more files": "Tidak ada berkas lagi",
     "Nothing here.": "Tidak ada apa apa disini.",
     "OAuth Step 1 - {{title}}": "Langkah 1 OAuth - {{title}}",
