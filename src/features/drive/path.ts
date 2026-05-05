@@ -6,7 +6,7 @@ export function cleanDrivePath(
   path: string,
   { trimTrailingSlash = true }: { trimTrailingSlash?: boolean } = {},
 ): string {
-  const cleanPath = pathPosix.resolve('/', pathPosix.normalize(path))
+  const cleanPath = decodeDrivePath(pathPosix.resolve('/', pathPosix.normalize(path)))
 
   if (trimTrailingSlash) {
     return cleanPath.replace(/\/$/, '')
@@ -33,6 +33,10 @@ export function decodePathSegment(segment: string): string {
   } catch {
     return segment
   }
+}
+
+export function decodeDrivePath(path: string): string {
+  return path.split('/').map(decodePathSegment).join('/')
 }
 
 export function decodePathSegments(pathSegments: string[]): string[] {

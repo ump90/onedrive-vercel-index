@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   cleanDrivePath,
+  decodeDrivePath,
   decodePathSegments,
   encodeDrivePath,
   extractNextPageToken,
@@ -14,6 +15,9 @@ describe('drive path helpers', () => {
   it('normalises route paths before Graph requests', () => {
     expect(cleanDrivePath('/folder/../file.md/')).toBe('/file.md')
     expect(cleanDrivePath('/folder/', { trimTrailingSlash: false })).toBe('/folder')
+    expect(cleanDrivePath('/%E5%90%8C%E4%BA%BA/%25E4%25B8%2587%25E5%258D%258E.mp4')).toBe(
+      '/同人/%E4%B8%87%E5%8D%8E.mp4',
+    )
   })
 
   it('encodes OneDrive paths relative to the configured base directory', () => {
@@ -28,6 +32,7 @@ describe('drive path helpers', () => {
 
   it('decodes encoded route params before building OneDrive paths', () => {
     expect(decodePathSegments(['%E7%95%AA%E5%89%A7'])).toEqual(['番剧'])
+    expect(decodeDrivePath('/%E7%95%AA%E5%89%A7/read%20me.md')).toBe('/番剧/read me.md')
     expect(pathSegmentsToPath(decodePathSegments(['%E7%95%AA%E5%89%A7']))).toBe('/番剧')
   })
 
