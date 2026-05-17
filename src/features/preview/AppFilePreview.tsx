@@ -1,7 +1,6 @@
 'use client'
 
-import type { ComponentType, CSSProperties, ReactNode } from 'react'
-import type { Components } from 'react-markdown'
+import type { ComponentType, ReactNode } from 'react'
 import type { OdFileObject } from '../../types'
 import type { PDFViewerProps } from '@embedpdf/react-pdf-viewer'
 import type { PlyrOptions, PlyrProps, PlyrSource } from 'plyr-react'
@@ -10,14 +9,7 @@ import { faCopy, faFile, faFileAudio, faFileImage, faFilePdf, faFileVideo } from
 import { faCheck, faDownload, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dynamic from 'next/dynamic'
-import ReactMarkdown from 'react-markdown'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { tomorrow, tomorrowNightEighties } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import rehypeKatex from 'rehype-katex'
-import rehypeRaw from 'rehype-raw'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
 
 import FourOhFour from '../../components/FourOhFour'
 import Loading, { LoadingIcon } from '../../components/Loading'
@@ -25,22 +17,11 @@ import { DownloadBtnContainer, PreviewContainer } from '../../components/preview
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
 import { getStoredToken } from '../auth/protected-route'
 import { useTranslation } from '../i18n/client'
-import { getExtension, getLanguageByFileName, getPreviewType, preview } from './preview-type'
+import { getExtension, getPreviewType, preview } from './preview-type'
 
 type AppFilePreviewProps = {
   file: OdFileObject
   path: string
-}
-
-type FileTextState = {
-  content: string
-  error: string
-  loading: boolean
-}
-
-const syntaxStyle = {
-  dark: tomorrowNightEighties as Record<string, CSSProperties>,
-  light: tomorrow as Record<string, CSSProperties>,
 }
 
 const Plyr = dynamic(() => import('plyr-react').then(mod => mod.default), {
@@ -81,65 +62,6 @@ function useBrowserOrigin() {
   }, [])
 
   return origin
-}
-
-function usePrefersDark() {
-  const [prefersDark, setPrefersDark] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const syncTheme = () => setPrefersDark(mediaQuery.matches)
-
-    syncTheme()
-    mediaQuery.addEventListener('change', syncTheme)
-
-    return () => mediaQuery.removeEventListener('change', syncTheme)
-  }, [])
-
-  return prefersDark
-}
-
-function useFileText(path: string): FileTextState {
-  const [state, setState] = useState<FileTextState>({ content: '', error: '', loading: true })
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const token = getStoredToken(path)
-    const url = urlWithPath('/api/raw/', path, { token })
-
-    fetch(url, { signal: controller.signal })
-      .then(async response => {
-        if (!response.ok) {
-          throw new Error(`${response.status} ${response.statusText || 'Failed to load file content.'}`)
-        }
-
-        return response.text()
-      })
-      .then(content => setState({ content, error: '', loading: false }))
-      .catch(error => {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          return
-        }
-
-        setState({
-          content: '',
-          error: error instanceof Error ? error.message : 'Failed to load file content.',
-          loading: false,
-        })
-      })
-
-    return () => controller.abort()
-  }, [path])
-
-  return state
-}
-
-function joinMarkdownPath(parentPath: string, sourcePath: string): string {
-  if (sourcePath.startsWith('/')) {
-    return sourcePath
-  }
-
-  return `${parentPath.replace(/\/$/, '')}/${sourcePath}`.replace(/^\/?/, '/')
 }
 
 function PreviewActionButton({
@@ -207,25 +129,6 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
   )
 }
 
-function renderContentState(
-  state: FileTextState,
-  t: (key: string, options?: Record<string, unknown>) => string,
-): ReactNode | null {
-  if (state.error) {
-    return <FourOhFour errorMsg={state.error} />
-  }
-
-  if (state.loading) {
-    return <Loading loadingText={t('Loading file content...')} />
-  }
-
-  if (!state.content) {
-    return <FourOhFour errorMsg={t('File is empty.')} />
-  }
-
-  return null
-}
-
 function ImagePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
   return (
     <>
@@ -238,112 +141,6 @@ function ImagePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
           width={file.image?.width}
           height={file.image?.height}
         />
-      </PreviewContainer>
-      <PreviewActions path={path} rawUrl={rawUrl} />
-    </>
-  )
-}
-
-function TextPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
-  const { t } = useTranslation()
-  const textState = useFileText(path)
-  const stateContent = renderContentState(textState, t)
-
-  return (
-    <>
-      <PreviewContainer>
-        {stateContent ?? (
-          <pre className="max-h-[80vh] overflow-auto p-3 text-sm break-words whitespace-pre-wrap">
-            {textState.content}
-          </pre>
-        )}
-      </PreviewContainer>
-      <PreviewActions path={path} rawUrl={rawUrl} />
-    </>
-  )
-}
-
-function CodePreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
-  const { t } = useTranslation()
-  const textState = useFileText(path)
-  const prefersDark = usePrefersDark()
-  const stateContent = renderContentState(textState, t)
-
-  return (
-    <>
-      <PreviewContainer>
-        {stateContent ?? (
-          <SyntaxHighlighter
-            language={getLanguageByFileName(file.name)}
-            style={prefersDark ? syntaxStyle.dark : syntaxStyle.light}
-            customStyle={{ margin: 0, maxHeight: '80vh' }}
-          >
-            {textState.content}
-          </SyntaxHighlighter>
-        )}
-      </PreviewContainer>
-      <PreviewActions path={path} rawUrl={rawUrl} />
-    </>
-  )
-}
-
-function MarkdownPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
-  const { t } = useTranslation()
-  const textState = useFileText(path)
-  const parentPath = path.substring(0, path.lastIndexOf('/')) || '/'
-  const stateContent = renderContentState(textState, t)
-  const token = getStoredToken(path)
-
-  const components = useMemo<Components>(
-    () => ({
-      img: ({ alt, src, title, width, height, style }) => {
-        const srcString = typeof src === 'string' ? src : ''
-        const isAbsoluteUrl = srcString.includes('://') || srcString.startsWith('//') || srcString.startsWith('data:')
-        const resolvedSrc = isAbsoluteUrl
-          ? srcString
-          : urlWithPath('/api/raw/', joinMarkdownPath(parentPath, srcString), { token })
-
-        return (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img alt={alt} src={resolvedSrc} title={title} width={width} height={height} style={style} />
-        )
-      },
-      code({ className, children, ...props }) {
-        const match = /language-(\w+)/.exec(className || '')
-
-        if (!match) {
-          return (
-            <code className={className} {...props}>
-              {children}
-            </code>
-          )
-        }
-
-        return (
-          <SyntaxHighlighter language={match[1]} style={syntaxStyle.dark} PreTag="div">
-            {String(children).replace(/\n$/, '')}
-          </SyntaxHighlighter>
-        )
-      },
-    }),
-    [parentPath, token],
-  )
-
-  return (
-    <>
-      <PreviewContainer>
-        {stateContent ?? (
-          <div className="markdown-body">
-            {/* rehypeRaw intentionally preserves existing OneDrive Markdown HTML support; only trusted directory content should use this path. */}
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex, rehypeRaw]}
-              components={components}
-            >
-              {textState.content}
-            </ReactMarkdown>
-          </div>
-        )}
       </PreviewContainer>
       <PreviewActions path={path} rawUrl={rawUrl} />
     </>
@@ -575,11 +372,9 @@ export default function AppFilePreview({ file, path }: AppFilePreviewProps) {
     case preview.image:
       return <ImagePreview file={file} path={path} rawUrl={rawUrl} />
     case preview.text:
-      return <TextPreview file={file} path={path} rawUrl={rawUrl} />
     case preview.code:
-      return <CodePreview file={file} path={path} rawUrl={rawUrl} />
     case preview.markdown:
-      return <MarkdownPreview file={file} path={path} rawUrl={rawUrl} />
+      return <DefaultDownloadPreview file={file} path={path} rawUrl={rawUrl} />
     case preview.pdf:
       return <PdfPreview file={file} path={path} rawUrl={rawUrl} />
     case preview.audio:
