@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server'
 import { checkProtectedRoute, getAccessToken, getProtectedRouteTokenFromCookies } from '../../../features/auth'
 import { cleanDrivePath, getThumbnailUrl } from '../../../features/drive'
 import { getApiConfig } from '../../../lib/config/api'
-import { getProxiedUrl } from '../../../utils/cfProxy'
 import {
   apiErrorResponse,
   getSearchParam,
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
       return apiErrorResponse(400, 'GRAPH_NOT_FOUND', "The item doesn't have a valid thumbnail.")
     }
 
-    const response = NextResponse.redirect(getProxiedUrl(thumbnailUrl))
+    const response = NextResponse.redirect(thumbnailUrl)
     response.headers.set('Cache-Control', odpt === '' && message === '' ? getApiConfig().cacheControlHeader : 'no-cache')
 
     return response

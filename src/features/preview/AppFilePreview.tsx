@@ -56,7 +56,7 @@ const EmbedPdfViewer = dynamic(() => import('@embedpdf/react-pdf-viewer').then(m
 function urlWithPath(
   endpoint: string,
   path: string,
-  options?: { token?: string | null; proxy?: boolean; size?: string; disposition?: 'inline' | 'attachment' },
+  options?: { token?: string | null; size?: string },
 ) {
   const params = new URLSearchParams({ path })
 
@@ -64,16 +64,8 @@ function urlWithPath(
     params.set('odpt', options.token)
   }
 
-  if (options?.proxy) {
-    params.set('proxy', '1')
-  }
-
   if (options?.size) {
     params.set('size', options.size)
-  }
-
-  if (options?.disposition) {
-    params.set('disposition', options.disposition)
   }
 
   return `${endpoint}?${params.toString()}`
@@ -113,7 +105,7 @@ function useFileText(path: string): FileTextState {
   useEffect(() => {
     const controller = new AbortController()
     const token = getStoredToken(path)
-    const url = urlWithPath('/api/raw/', path, { token, proxy: true, disposition: 'inline' })
+    const url = urlWithPath('/api/raw/', path, { token })
 
     fetch(url, { signal: controller.signal })
       .then(async response => {
@@ -174,7 +166,7 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
   const { t } = useTranslation()
   const origin = useBrowserOrigin()
   const token = getStoredToken(path)
-  const downloadUrl = urlWithPath('/api/raw/', path, { token, disposition: 'attachment' })
+  const downloadUrl = urlWithPath('/api/raw/', path, { token })
   const [copied, setCopied] = useState(false)
 
   const copyRawLink = async () => {
@@ -309,7 +301,7 @@ function MarkdownPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: strin
         const isAbsoluteUrl = srcString.includes('://') || srcString.startsWith('//') || srcString.startsWith('data:')
         const resolvedSrc = isAbsoluteUrl
           ? srcString
-          : urlWithPath('/api/raw/', joinMarkdownPath(parentPath, srcString), { token, disposition: 'inline' })
+          : urlWithPath('/api/raw/', joinMarkdownPath(parentPath, srcString), { token })
 
         return (
           // eslint-disable-next-line @next/next/no-img-element
@@ -458,7 +450,7 @@ function VideoPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
   const token = getStoredToken(path)
   const thumbnailUrl = urlWithPath('/api/thumbnail/', path, { token, size: 'large' })
   const subtitlePath = `${path.substring(0, path.lastIndexOf('.'))}.vtt`
-  const subtitleUrl = urlWithPath('/api/raw/', subtitlePath, { token, disposition: 'inline' })
+  const subtitleUrl = urlWithPath('/api/raw/', subtitlePath, { token })
   const extension = getExtension(file.name)
   const isFlv = extension === 'flv'
 
@@ -576,7 +568,7 @@ function DefaultDownloadPreview({ file, path, rawUrl }: AppFilePreviewProps & { 
 
 export default function AppFilePreview({ file, path }: AppFilePreviewProps) {
   const token = getStoredToken(path)
-  const rawUrl = urlWithPath('/api/raw/', path, { token, disposition: 'inline' })
+  const rawUrl = urlWithPath('/api/raw/', path, { token })
   const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
   switch (previewType) {
