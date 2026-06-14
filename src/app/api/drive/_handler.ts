@@ -81,7 +81,13 @@ export async function handleDriveRequest(request: NextRequest): Promise<Response
       return protectedRouteErrorResponse(code, message)
     }
 
-    const data = await getDrivePathResponse({ cleanPath, accessToken, next, sort })
+    const data = await getDrivePathResponse({
+      cleanPath,
+      accessToken,
+      next,
+      sort,
+      includeDownloadUrl: true,
+    })
     const response = jsonResponse(data)
     response.headers.set('Cache-Control', message === '' ? getApiConfig().cacheControlHeader : 'no-cache')
 

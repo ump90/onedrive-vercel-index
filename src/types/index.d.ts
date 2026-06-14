@@ -16,18 +16,21 @@ export type OdFolderObject = {
   value: Array<{
     id: string
     name: string
+    '@microsoft.graph.downloadUrl'?: string
     size: number
     lastModifiedDateTime: string
     file?: { mimeType: string; hashes: { quickXorHash?: string; sha1Hash?: string; sha256Hash?: string } }
     folder?: { childCount: number; view: { sortBy: string; sortOrder: 'ascending'; viewType: 'thumbnails' } }
     image?: OdImageFile
     video?: OdVideoFile
+    thumbnails?: OdThumbnail[]
   }>
 }
 export type OdFolderChildren = OdFolderObject['value'][number]
 // A file object returned from the OneDrive API. This object may contain 'video' if the file is a video.
 export type OdFileObject = {
   '@odata.context': string
+  '@microsoft.graph.downloadUrl'?: string
   name: string
   size: number
   id: string
@@ -35,6 +38,7 @@ export type OdFileObject = {
   file: { mimeType: string; hashes: { quickXorHash: string; sha1Hash?: string; sha256Hash?: string } }
   image?: OdImageFile
   video?: OdVideoFile
+  thumbnails?: OdThumbnail[]
 }
 // A representation of a OneDrive image file. Some images do not return a width and height, so types are optional.
 export type OdImageFile = {
@@ -55,9 +59,9 @@ export type OdVideoFile = {
 }
 export type OdThumbnail = {
   id: string
-  large: { height: number; width: number; url: string }
-  medium: { height: number; width: number; url: string }
-  small: { height: number; width: number; url: string }
+  large?: { height: number; width: number; url: string }
+  medium?: { height: number; width: number; url: string }
+  small?: { height: number; width: number; url: string }
 }
 // API response object for /api/search/?q=<query>. Likewise, this array of items may also contain either files or folders.
 export type OdSearchResult = Array<{

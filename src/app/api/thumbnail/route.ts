@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
 
     const response = NextResponse.redirect(thumbnailUrl)
     response.headers.set('Cache-Control', odpt === '' && message === '' ? getApiConfig().cacheControlHeader : 'no-cache')
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
 
     return response
   } catch (error) {

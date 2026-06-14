@@ -48,6 +48,7 @@ import AppFilePreview from '../preview/AppFilePreview'
 import { getPreviewType } from '../preview/preview-type'
 import AppSearchModal from './AppSearchModal'
 import { itemPath, pathSegmentsToPath } from './path'
+import { thumbnailUrlFromThumbnails } from './thumbnail'
 
 export type AppDriveInitialError = {
   message: string
@@ -288,12 +289,10 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
   const href = itemPath(path, child.name)
   const icon = iconForItem(child)
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
+  const directDownloadUrl = child['@microsoft.graph.downloadUrl']
 
   if (layout === 'Grid') {
-    const hashedToken = getStoredToken(href)
-    const thumbnailUrl = child.folder
-      ? null
-      : `/api/thumbnail/?path=${encodeURIComponent(href)}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
+    const thumbnailUrl = child.folder ? '' : thumbnailUrlFromThumbnails(child.thumbnails, 'medium')
 
     return (
       <Link href={href} className="group dark:hover:bg-gray-850 rounded-sm p-2 transition-all hover:bg-gray-100">
@@ -337,10 +336,11 @@ function FolderItem({ child, path, layout }: { child: OdFolderChildren; path: st
         </div>
         <div className="col-span-1 hidden font-mono text-sm text-gray-500 md:block">{humanFileSize(child.size)}</div>
       </Link>
-      {!child.folder && (
+      {!child.folder && directDownloadUrl && (
         <a
           className="col-span-2 hidden px-3 py-2.5 text-gray-500 hover:text-gray-900 md:block dark:hover:text-white"
-          href={`/api/raw/?path=${encodeURIComponent(href)}`}
+          href={directDownloadUrl}
+          rel="nofollow"
           title={t('Download')}
         >
           <FontAwesomeIcon icon={faDownload} />

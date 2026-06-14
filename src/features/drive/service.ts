@@ -27,15 +27,19 @@ type DriveItemIdentity = {
   name: string
   size: number
   lastModifiedDateTime: string
+  '@microsoft.graph.downloadUrl'?: string
   file?: OdFileObject['file']
   folder?: OdFolderChildren['folder']
   image?: OdImageFile
+  thumbnails?: OdThumbnail[]
   video?: OdVideoFile
 }
 
 type ThumbnailSize = 'large' | 'medium' | 'small'
 
 const driveItemSelect = 'name,size,id,lastModifiedDateTime,folder,file,video,image'
+const driveItemSelectWithDownloadUrl = `${driveItemSelect},@microsoft.graph.downloadUrl`
+const thumbnailsExpand = 'thumbnails'
 
 function parentPathForFile(path: string): string {
   const parentPath = path.substring(0, path.lastIndexOf('/'))
@@ -96,11 +100,13 @@ export async function getDrivePathResponse({
   accessToken,
   next = '',
   sort = '',
+  includeDownloadUrl = false,
 }: {
   cleanPath: string
   accessToken: string
   next?: string
   sort?: string
+  includeDownloadUrl?: boolean
 }): Promise<OdAPIResponse> {
   const requestPath = encodeDrivePath(cleanPath)
   const requestUrl = `${getApiConfig().driveApi}/root${requestPath}`
@@ -108,14 +114,16 @@ export async function getDrivePathResponse({
 
   const identityData = await graphGet<DriveItemIdentity>(requestUrl, accessToken, {
     params: {
-      select: driveItemSelect,
+      select: includeDownloadUrl ? driveItemSelectWithDownloadUrl : driveItemSelect,
+      ...(includeDownloadUrl ? { $expand: thumbnailsExpand } : {}),
     },
   })
 
   if (identityData.folder) {
     const folderData = await graphGet<OdFolderObject>(`${requestUrl}${isRoot ? '' : ':'}/children`, accessToken, {
       params: {
-        select: driveItemSelect,
+        select: includeDownloadUrl ? driveItemSelectWithDownloadUrl : driveItemSelect,
+        ...(includeDownloadUrl ? { $expand: thumbnailsExpand } : {}),
         $top: getSiteConfig().maxItems,
         ...(next ? { $skipToken: next } : {}),
         ...(sort ? { $orderby: sort } : {}),
@@ -161,7 +169,7 @@ export async function getThumbnailUrl({
   const isRoot = requestPath === ''
   const data = await graphGet<{ value?: OdThumbnail[] }>(`${requestUrl}${isRoot ? '' : ':'}/thumbnails`, accessToken)
 
-  return data.value && data.value.length > 0 ? data.value[0][size].url : null
+  return data.value?.[0]?.[size]?.url ?? null
 }
 
 export async function searchDriveItems({

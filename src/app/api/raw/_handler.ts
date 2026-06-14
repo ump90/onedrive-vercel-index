@@ -47,6 +47,7 @@ export async function handleRawRequest(request: NextRequest): Promise<Response> 
     const cacheControl = message === '' ? getApiConfig().cacheControlHeader : 'no-cache'
     const response = NextResponse.redirect(downloadUrl)
     response.headers.set('Cache-Control', cacheControl)
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive')
 
     return withCorsHeaders(response)
   } catch (error) {

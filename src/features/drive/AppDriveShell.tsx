@@ -67,7 +67,7 @@ async function loadInitialDriveResponse(path: string): Promise<{
       return { error: { message, status: code } }
     }
 
-    return { response: await getDrivePathResponse({ cleanPath, accessToken }) }
+    return { response: await getDrivePathResponse({ cleanPath, accessToken, includeDownloadUrl: true }) }
   } catch (error) {
     if (isNextRedirectError(error)) {
       throw error

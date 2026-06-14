@@ -15,7 +15,7 @@ import FourOhFour from '../../components/FourOhFour'
 import Loading, { LoadingIcon } from '../../components/Loading'
 import { DownloadBtnContainer, PreviewContainer } from '../../components/previews/Containers'
 import { formatModifiedDateTime, humanFileSize } from '../../utils/fileDetails'
-import { getStoredToken } from '../auth/protected-route'
+import { thumbnailUrlFromThumbnails } from '../drive/thumbnail'
 import { useTranslation } from '../i18n/client'
 import { getExtension, getPreviewType, preview } from './preview-type'
 
@@ -33,24 +33,6 @@ const EmbedPdfViewer = dynamic(() => import('@embedpdf/react-pdf-viewer').then(m
   ssr: false,
   loading: () => <Loading loadingText="Loading PDF viewer ..." />,
 }) as ComponentType<PDFViewerProps>
-
-function urlWithPath(
-  endpoint: string,
-  path: string,
-  options?: { token?: string | null; size?: string },
-) {
-  const params = new URLSearchParams({ path })
-
-  if (options?.token) {
-    params.set('odpt', options.token)
-  }
-
-  if (options?.size) {
-    params.set('size', options.size)
-  }
-
-  return `${endpoint}?${params.toString()}`
-}
 
 function useBrowserOrigin() {
   const [origin, setOrigin] = useState('')
@@ -87,9 +69,11 @@ function PreviewActionButton({
 function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
   const { t } = useTranslation()
   const origin = useBrowserOrigin()
-  const token = getStoredToken(path)
-  const downloadUrl = urlWithPath('/api/raw/', path, { token })
   const [copied, setCopied] = useState(false)
+
+  if (!rawUrl) {
+    return null
+  }
 
   const copyRawLink = async () => {
     const rawLink = origin ? new URL(rawUrl, origin).toString() : rawUrl
@@ -104,7 +88,8 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
       <div className="flex flex-wrap justify-center gap-2">
         <a
           className="dark:hover:bg-gray-850 flex items-center gap-2 rounded-sm border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-blue-500 dark:bg-gray-800 dark:text-blue-300"
-          href={downloadUrl}
+          href={rawUrl}
+          rel="nofollow"
           title={`${t('Download')} ${path}`}
         >
           <FontAwesomeIcon icon={faDownload} />
@@ -118,7 +103,7 @@ function PreviewActions({ path, rawUrl }: { path: string; rawUrl: string }) {
           className="dark:hover:bg-gray-850 flex items-center gap-2 rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           href={rawUrl}
           target="_blank"
-          rel="noreferrer"
+          rel="nofollow noreferrer"
           title={t('Open raw file')}
         >
           <FontAwesomeIcon icon={faExternalLinkAlt} />
@@ -167,8 +152,7 @@ function PdfPreview({ path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) 
 function AudioPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
   const { t } = useTranslation()
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
-  const token = getStoredToken(path)
-  const thumbnailUrl = urlWithPath('/api/thumbnail/', path, { token, size: 'medium' })
+  const thumbnailUrl = thumbnailUrlFromThumbnails(file.thumbnails, 'medium')
 
   return (
     <>
@@ -244,10 +228,7 @@ function FlvVideoPreview({ rawUrl, thumbnailUrl }: { rawUrl: string; thumbnailUr
 }
 
 function VideoPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: string }) {
-  const token = getStoredToken(path)
-  const thumbnailUrl = urlWithPath('/api/thumbnail/', path, { token, size: 'large' })
-  const subtitlePath = `${path.substring(0, path.lastIndexOf('.'))}.vtt`
-  const subtitleUrl = urlWithPath('/api/raw/', subtitlePath, { token })
+  const thumbnailUrl = thumbnailUrlFromThumbnails(file.thumbnails, 'large')
   const extension = getExtension(file.name)
   const isFlv = extension === 'flv'
 
@@ -256,7 +237,7 @@ function VideoPreview({ file, path, rawUrl }: AppFilePreviewProps & { rawUrl: st
     title: file.name,
     poster: thumbnailUrl,
     sources: [{ src: rawUrl, type: file.file?.mimeType ?? 'video/mp4' }],
-    tracks: [{ kind: 'captions', label: 'Captions', src: subtitleUrl, default: true }],
+    tracks: [],
   }
   const options: PlyrOptions = {
     ratio: `${file.video?.width ?? 16}:${file.video?.height ?? 9}`,
@@ -364,9 +345,12 @@ function DefaultDownloadPreview({ file, path, rawUrl }: AppFilePreviewProps & { 
 }
 
 export default function AppFilePreview({ file, path }: AppFilePreviewProps) {
-  const token = getStoredToken(path)
-  const rawUrl = urlWithPath('/api/raw/', path, { token })
+  const rawUrl = file['@microsoft.graph.downloadUrl'] || ''
   const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
+
+  if (!rawUrl) {
+    return <DefaultDownloadPreview file={file} path={path} rawUrl="" />
+  }
 
   switch (previewType) {
     case preview.image:
